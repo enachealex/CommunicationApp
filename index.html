@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Conflict Style Assessment</title>
+  <title>Communication Styles</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#6366f1">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Conflict Style">
+  <meta name="apple-mobile-web-app-title" content="CommStyles">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -26,9 +26,9 @@
 
     /* Home Screen */
     .home-screen {
-      justify-content: center;
       align-items: center;
       padding: 20px;
+      overflow-y: auto;
     }
     .title {
       font-size: 28px;
@@ -66,6 +66,65 @@
       border: 2px solid #334155;
       color: #f8fafc;
       margin-top: 10px;
+    }
+
+    /* Assessment Hub Cards */
+    .hub-cards {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .hub-card {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .hub-card:hover {
+      border-color: #6366f1;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.15);
+    }
+    .hub-card-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+    .hub-card-title {
+      color: #f8fafc;
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    .hub-card-desc {
+      color: #94a3b8;
+      font-size: 14px;
+      line-height: 21px;
+      margin-bottom: 12px;
+    }
+    .hub-card-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-available { background-color: #1e3a5f; color: #60a5fa; }
+    .badge-coming { background-color: #2d2204; color: #facc15; }
+    .hub-card.disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+    .hub-card.disabled:hover {
+      border-color: #334155;
+      transform: none;
+      box-shadow: none;
     }
 
     /* Quiz Screen */
@@ -446,10 +505,37 @@
 
   <!-- Home Screen -->
   <div id="home-screen" class="screen home-screen active">
-    <h1 class="title">Conflict Style Assessment</h1>
+    <h1 class="title" style="margin-top:40px;">Communication Styles</h1>
+    <p class="subtitle">Explore how you communicate, collaborate, and navigate relationships.</p>
+    <div class="hub-cards">
+      <div class="hub-card" onclick="openConflictStyle()">
+        <div class="hub-card-icon">&#9878;</div>
+        <div class="hub-card-title">Conflict Style Assessment</div>
+        <div class="hub-card-desc">Discover how you naturally handle disagreements — avoiding, dominating, compromising, obliging, or integrating.</div>
+        <span class="hub-card-badge badge-available">25 Questions</span>
+      </div>
+      <div class="hub-card disabled">
+        <div class="hub-card-icon">&#128483;</div>
+        <div class="hub-card-title">Listening Style Profile</div>
+        <div class="hub-card-desc">Understand whether you listen to connect, analyze, support, or respond — and how it shapes conversations.</div>
+        <span class="hub-card-badge badge-coming">Coming Soon</span>
+      </div>
+      <div class="hub-card disabled">
+        <div class="hub-card-icon">&#129309;</div>
+        <div class="hub-card-title">Feedback Style Inventory</div>
+        <div class="hub-card-desc">Learn how you give and receive feedback — direct, diplomatic, analytical, or empathetic.</div>
+        <span class="hub-card-badge badge-coming">Coming Soon</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conflict Style Landing -->
+  <div id="conflict-home-screen" class="screen home-screen">
+    <h1 class="title" style="margin-top:40px;">Conflict Style Assessment</h1>
     <p class="subtitle">Discover how you naturally navigate disagreements and collaboration.</p>
     <button class="btn btn-primary" onclick="startQuiz()">Start New Assessment</button>
     <button class="btn btn-secondary" id="view-past-btn" style="display:none;" onclick="viewPastResults()">View Past Results</button>
+    <button class="btn btn-outline" onclick="showScreen('home')" style="max-width:400px;">&#8592; Back to Hub</button>
   </div>
 
   <!-- Quiz Screen -->
@@ -493,10 +579,8 @@
       <button class="toolbar-btn btn-danger" onclick="deleteAllResults()">Delete All</button>
     </div>
     <div class="history-tiles" id="history-tiles"></div>
-    <button class="btn btn-outline" onclick="reset()" style="max-width:500px;">Return to Home</button>
+    <button class="btn btn-outline" onclick="backToConflictHome()" style="max-width:500px;">Return to Home</button>
   </div>
-
-  <!-- Context Menu -->
   <div class="context-menu" id="context-menu">
     <div class="context-menu-item" id="ctx-select" onclick="ctxSelect()">Select</div>
     <div class="context-menu-item danger" id="ctx-delete" onclick="ctxDelete()">Delete</div>
@@ -596,6 +680,16 @@
       saveHistory();
     }
 
+    function openConflictStyle() {
+      loadHistory();
+      showScreen('conflict-home');
+    }
+
+    function backToConflictHome() {
+      loadHistory();
+      showScreen('conflict-home');
+    }
+
     function showScreen(name) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById(name + '-screen').classList.add('active');
@@ -663,7 +757,7 @@
       answers = new Array(25).fill(null);
       maxAnswered = -1;
       loadHistory();
-      showScreen('home');
+      showScreen('conflict-home');
     }
 
     function finishQuiz() {
@@ -738,7 +832,7 @@
         cameFromHistory = false;
         viewPastResults();
       } else {
-        reset();
+        backToConflictHome();
       }
     }
 
@@ -904,7 +998,7 @@
       resultHistory = [];
       saveHistory();
       selectedTiles.clear();
-      reset();
+      backToConflictHome();
     }
 
     function reset() {
@@ -912,7 +1006,7 @@
       answers = new Array(25).fill(null);
       maxAnswered = -1;
       loadHistory();
-      showScreen('home');
+      showScreen('conflict-home');
     }
 
     // Keyboard support for quiz

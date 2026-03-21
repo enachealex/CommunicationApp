@@ -26,7 +26,7 @@
   },
   "build": {
     "appId": "com.communicationapp",
-    "productName": "Communication App",
+    "productName": "Communication Styles",
     "directories": {
       "output": "dist"
     },

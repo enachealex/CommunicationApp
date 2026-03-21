@@ -1,7 +1,7 @@
 {
-  "name": "Communication App",
-  "short_name": "CommApp",
-  "description": "Communication tools and assessments.",
+  "name": "Communication Styles",
+  "short_name": "CommStyles",
+  "description": "Communication style assessments and tools.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
