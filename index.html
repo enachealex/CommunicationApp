@@ -2,8 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Conflict Style Assessment</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Conflict Style">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -142,6 +148,57 @@
       border-color: #6366f1;
       transform: scale(1.1);
     }
+    .circle.selected {
+      background-color: #6366f1;
+      border-color: #6366f1;
+      transform: scale(1.1);
+    }
+
+    /* Quiz Navigation */
+    .quiz-top-row {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .cancel-btn {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: color 0.2s;
+      white-space: nowrap;
+    }
+    .cancel-btn:hover { color: #f87171; }
+    .quiz-nav-row {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      position: relative;
+      min-height: 32px;
+    }
+    .nav-btn {
+      background: none;
+      border: 1px solid #475569;
+      color: #94a3b8;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 16px;
+      border-radius: 8px;
+      transition: all 0.2s;
+      position: absolute;
+    }
+    .nav-btn:hover { color: #f8fafc; border-color: #6366f1; }
+    .nav-btn.prev { left: 0; }
+    .nav-btn.next { right: 0; }
 
     /* Results Screen */
     .results-screen {
@@ -237,6 +294,152 @@
     .score-row:last-child { border-bottom: none; }
     .score-label { color: #f8fafc; font-size: 16px; font-weight: 500; }
     .score-value { color: #94a3b8; font-size: 16px; font-weight: bold; }
+
+    /* History Screen */
+    .history-screen {
+      padding: 20px;
+      align-items: center;
+      overflow-y: auto;
+    }
+    .history-toolbar {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .toolbar-btn {
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.2s;
+    }
+    .toolbar-btn:hover { opacity: 0.85; }
+    .btn-danger { background-color: #ef4444; color: white; }
+    .btn-danger-outline { background-color: transparent; border: 2px solid #ef4444; color: #ef4444; }
+    .history-tiles {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .history-tile {
+      background-color: #1e293b;
+      padding: 16px 16px 16px 20px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      cursor: pointer;
+      transition: all 0.15s;
+      position: relative;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .history-tile:hover { border-color: #6366f1; }
+    .history-tile.tile-selected {
+      border-color: #6366f1;
+      background-color: #1e2d4a;
+    }
+    .tile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .tile-date { color: #94a3b8; font-size: 13px; }
+    .tile-attempt { color: #6366f1; font-size: 13px; font-weight: 600; }
+    .tile-primary {
+      color: #f8fafc;
+      font-size: 17px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    .tile-scores {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .tile-score-chip {
+      background-color: #0f172a;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .tile-checkbox {
+      position: absolute;
+      left: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 2px solid #475569;
+      background-color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.15s;
+      cursor: pointer;
+      z-index: 2;
+    }
+    .tile-checkbox.checked {
+      background-color: #6366f1;
+      border-color: #6366f1;
+    }
+    .tile-checkbox.checked::after {
+      content: '\2713';
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    /* Desktop: show checkbox on hover */
+    @media (hover: hover) {
+      .history-tile:hover .tile-checkbox,
+      .history-tile.tile-selected .tile-checkbox {
+        opacity: 1;
+      }
+    }
+    /* When in select mode, always show checkboxes */
+    .history-tiles.select-mode .tile-checkbox {
+      opacity: 1;
+    }
+    .history-empty {
+      color: #64748b;
+      font-size: 16px;
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    /* Context Menu */
+    .context-menu {
+      position: fixed;
+      background-color: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 10px;
+      padding: 6px 0;
+      min-width: 160px;
+      z-index: 1000;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      display: none;
+    }
+    .context-menu.visible { display: block; }
+    .context-menu-item {
+      padding: 10px 18px;
+      color: #f8fafc;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.1s;
+    }
+    .context-menu-item:hover { background-color: #334155; }
+    .context-menu-item.danger { color: #f87171; }
+    .context-menu-item.danger:hover { background-color: #3b1a1a; }
   </style>
 </head>
 <body>
@@ -251,20 +454,27 @@
 
   <!-- Quiz Screen -->
   <div id="quiz-screen" class="screen quiz-screen">
-    <div class="progress-bar-container">
-      <div class="progress-bar" id="progress-bar"></div>
+    <div class="quiz-top-row">
+      <button class="cancel-btn" onclick="cancelQuiz()">&#x2715; Cancel</button>
+      <div class="progress-bar-container" style="margin-bottom:0; flex:1; margin-left:10px;">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
     </div>
     <div class="legend-text">1: Never | 2: Seldom | 3: Sometimes | 4: Often | 5: Always</div>
-    <div class="progress-text" id="progress-text"></div>
+    <div class="quiz-nav-row">
+      <button class="nav-btn prev" id="prev-btn" onclick="goBack()" style="display:none;">&#8592; Previous</button>
+      <div class="progress-text" id="progress-text"></div>
+      <button class="nav-btn next" id="next-btn" onclick="goNext()" style="display:none;">Next &#8594;</button>
+    </div>
     <div class="question-card">
       <div class="question" id="question-text"></div>
     </div>
     <div class="options-container">
-      <div class="circle" onclick="handleSelect(1)">1</div>
-      <div class="circle" onclick="handleSelect(2)">2</div>
-      <div class="circle" onclick="handleSelect(3)">3</div>
-      <div class="circle" onclick="handleSelect(4)">4</div>
-      <div class="circle" onclick="handleSelect(5)">5</div>
+      <div class="circle" id="circle-1" onclick="handleSelect(1)">1</div>
+      <div class="circle" id="circle-2" onclick="handleSelect(2)">2</div>
+      <div class="circle" id="circle-3" onclick="handleSelect(3)">3</div>
+      <div class="circle" id="circle-4" onclick="handleSelect(4)">4</div>
+      <div class="circle" id="circle-5" onclick="handleSelect(5)">5</div>
     </div>
   </div>
 
@@ -272,7 +482,24 @@
   <div id="results-screen" class="screen results-screen">
     <h1 class="title">Assessment Results</h1>
     <div id="results-content"></div>
+    <button class="btn btn-outline" id="results-back-btn" onclick="resultsGoBack()" style="max-width:500px;">Return to Home</button>
+  </div>
+
+  <!-- History Screen -->
+  <div id="history-screen" class="screen history-screen">
+    <h1 class="title">Past Results</h1>
+    <div class="history-toolbar" id="history-toolbar">
+      <button class="toolbar-btn btn-danger-outline" id="delete-selected-btn" style="display:none;" onclick="deleteSelectedResults()">Delete Selected</button>
+      <button class="toolbar-btn btn-danger" onclick="deleteAllResults()">Delete All</button>
+    </div>
+    <div class="history-tiles" id="history-tiles"></div>
     <button class="btn btn-outline" onclick="reset()" style="max-width:500px;">Return to Home</button>
+  </div>
+
+  <!-- Context Menu -->
+  <div class="context-menu" id="context-menu">
+    <div class="context-menu-item" id="ctx-select" onclick="ctxSelect()">Select</div>
+    <div class="context-menu-item danger" id="ctx-delete" onclick="ctxDelete()">Delete</div>
   </div>
 
   <script>
@@ -312,33 +539,61 @@
       Integrating: "Collaborating for win-win solutions. Takes time and trust, but results in the strongest resolutions."
     };
 
-    const STORAGE_KEY = 'conflict_scores';
+    const STORAGE_KEY = 'conflict_scores_history';
     let currentIdx = 0;
-    let answers = [];
-    let pastResult = null;
+    let answers = new Array(25).fill(null);
+    let maxAnswered = -1;
+    let resultHistory = [];
+    let selectedTiles = new Set();
+    let ctxTargetIdx = null;
+    let longPressTimer = null;
+    let cameFromHistory = false;
 
-    // Load past results on start
-    function loadPastResult() {
+    function loadHistory() {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
-          pastResult = JSON.parse(saved);
-          const btn = document.getElementById('view-past-btn');
-          btn.style.display = 'block';
-          btn.textContent = `View Past Results (${pastResult.date})`;
+          resultHistory = JSON.parse(saved);
+        }
+        // Migrate old single-result format
+        const oldSaved = localStorage.getItem('conflict_scores');
+        if (oldSaved) {
+          const old = JSON.parse(oldSaved);
+          if (old && old.scores) {
+            if (!old.id) old.id = Date.now();
+            resultHistory.unshift(old);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(resultHistory));
+            localStorage.removeItem('conflict_scores');
+          }
         }
       } catch (e) {
         console.log("Failed to load data.");
       }
+      updateHomeBtn();
     }
 
-    function saveResult(result) {
+    function updateHomeBtn() {
+      const btn = document.getElementById('view-past-btn');
+      if (resultHistory.length > 0) {
+        btn.style.display = 'block';
+        btn.textContent = `View Past Results (${resultHistory.length})`;
+      } else {
+        btn.style.display = 'none';
+      }
+    }
+
+    function saveHistory() {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(result));
-        pastResult = result;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(resultHistory));
       } catch (e) {
         console.log("Failed to save data.");
       }
+    }
+
+    function addResult(result) {
+      result.id = Date.now();
+      resultHistory.unshift(result);
+      saveHistory();
     }
 
     function showScreen(name) {
@@ -348,19 +603,39 @@
 
     function startQuiz() {
       currentIdx = 0;
-      answers = [];
+      answers = new Array(25).fill(null);
+      maxAnswered = -1;
       updateQuizUI();
       showScreen('quiz');
     }
 
     function updateQuizUI() {
-      document.getElementById('progress-bar').style.width = `${(currentIdx / 25) * 100}%`;
+      document.getElementById('progress-bar').style.width = `${((maxAnswered + 1) / 25) * 100}%`;
       document.getElementById('progress-text').textContent = `Question ${currentIdx + 1} of 25`;
       document.getElementById('question-text').textContent = questions[currentIdx];
+
+      // Show/hide Previous button
+      document.getElementById('prev-btn').style.display = currentIdx > 0 ? 'block' : 'none';
+
+      // Show Next button only if current question already answered and not the last answered
+      const hasAnswer = answers[currentIdx] !== null;
+      const canGoNext = hasAnswer && currentIdx < 24 && currentIdx <= maxAnswered;
+      document.getElementById('next-btn').style.display = canGoNext ? 'block' : 'none';
+
+      // Highlight selected circle
+      for (let i = 1; i <= 5; i++) {
+        const el = document.getElementById('circle-' + i);
+        if (answers[currentIdx] === i) {
+          el.classList.add('selected');
+        } else {
+          el.classList.remove('selected');
+        }
+      }
     }
 
     function handleSelect(value) {
-      answers.push(value);
+      answers[currentIdx] = value;
+      if (currentIdx > maxAnswered) maxAnswered = currentIdx;
       if (currentIdx < 24) {
         currentIdx++;
         updateQuizUI();
@@ -369,9 +644,32 @@
       }
     }
 
+    function goBack() {
+      if (currentIdx > 0) {
+        currentIdx--;
+        updateQuizUI();
+      }
+    }
+
+    function goNext() {
+      if (answers[currentIdx] !== null && currentIdx < 24) {
+        currentIdx++;
+        updateQuizUI();
+      }
+    }
+
+    function cancelQuiz() {
+      currentIdx = 0;
+      answers = new Array(25).fill(null);
+      maxAnswered = -1;
+      loadHistory();
+      showScreen('home');
+    }
+
     function finishQuiz() {
       const scores = { Avoiding: 0, Dominating: 0, Compromising: 0, Obliging: 0, Integrating: 0 };
       answers.forEach((val, i) => {
+        if (val === null) return;
         const qNum = i + 1;
         if ([1, 6, 11, 16, 21].includes(qNum)) scores.Avoiding += val;
         else if ([2, 7, 12, 17, 22].includes(qNum)) scores.Dominating += val;
@@ -385,7 +683,8 @@
       const secondaries = Object.keys(scores).filter(k => scores[k] >= maxScore - 3 && scores[k] < maxScore);
 
       const result = { scores, primaries, secondaries, date: new Date().toLocaleDateString() };
-      saveResult(result);
+      addResult(result);
+      cameFromHistory = false;
       showResults(result);
     }
 
@@ -430,27 +729,215 @@
       html += '</div>';
 
       document.getElementById('results-content').innerHTML = html;
+      document.getElementById('results-back-btn').textContent = cameFromHistory ? 'Back to Past Results' : 'Return to Home';
       showScreen('results');
     }
 
+    function resultsGoBack() {
+      if (cameFromHistory) {
+        cameFromHistory = false;
+        viewPastResults();
+      } else {
+        reset();
+      }
+    }
+
     function openLearnMore(style) {
-      const { shell } = require('electron');
-      shell.openExternal(`https://www.google.com/search?q=Thomas+Kilmann+${encodeURIComponent(style)}+Conflict+Management+Style`);
+      const url = `https://www.google.com/search?q=Thomas+Kilmann+${encodeURIComponent(style)}+Conflict+Management+Style`;
+      try {
+        const { shell } = require('electron');
+        shell.openExternal(url);
+      } catch (e) {
+        window.open(url, '_blank');
+      }
     }
 
     function viewPastResults() {
-      if (pastResult) showResults(pastResult);
+      selectedTiles.clear();
+      renderHistoryTiles();
+      showScreen('history');
+    }
+
+    function renderHistoryTiles() {
+      const container = document.getElementById('history-tiles');
+      const delSelBtn = document.getElementById('delete-selected-btn');
+      delSelBtn.style.display = selectedTiles.size > 0 ? 'inline-block' : 'none';
+
+      if (resultHistory.length === 0) {
+        container.innerHTML = '<div class="history-empty">No past results yet.</div>';
+        return;
+      }
+
+      container.className = 'history-tiles' + (selectedTiles.size > 0 ? ' select-mode' : '');
+      let html = '';
+      resultHistory.forEach((r, i) => {
+        const isSelected = selectedTiles.has(i);
+        html += `<div class="history-tile${isSelected ? ' tile-selected' : ''}" data-index="${i}"
+          onclick="handleTileClick(event, ${i})"
+          oncontextmenu="handleTileContext(event, ${i})"
+          ontouchstart="handleTouchStart(event, ${i})"
+          ontouchend="handleTouchEnd(event)"
+          ontouchmove="handleTouchEnd(event)">`;
+        html += `<div class="tile-checkbox${isSelected ? ' checked' : ''}" onclick="toggleTileSelect(event, ${i})"></div>`;
+        html += `<div class="tile-header">`;
+        html += `<span class="tile-attempt">Attempt #${resultHistory.length - i}</span>`;
+        html += `<span class="tile-date">${r.date}</span>`;
+        html += `</div>`;
+        html += `<div class="tile-primary">${r.primaries.join(' & ')}</div>`;
+        html += `<div class="tile-scores">`;
+        Object.keys(r.scores).forEach(key => {
+          html += `<span class="tile-score-chip">${key}: ${r.scores[key]}</span>`;
+        });
+        html += `</div></div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    // --- Tile interactions ---
+
+    function handleTileClick(e, idx) {
+      if (e.defaultPrevented) return;
+      // If in select mode, toggle selection
+      if (selectedTiles.size > 0) {
+        toggleTileSelectByIdx(idx);
+        return;
+      }
+      // Normal click: view that result
+      cameFromHistory = true;
+      showResults(resultHistory[idx]);
+    }
+
+    function toggleTileSelect(e, idx) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleTileSelectByIdx(idx);
+    }
+
+    function toggleTileSelectByIdx(idx) {
+      if (selectedTiles.has(idx)) {
+        selectedTiles.delete(idx);
+      } else {
+        selectedTiles.add(idx);
+      }
+      renderHistoryTiles();
+    }
+
+    // Desktop right-click
+    function handleTileContext(e, idx) {
+      e.preventDefault();
+      ctxTargetIdx = idx;
+      const menu = document.getElementById('context-menu');
+      menu.style.left = e.clientX + 'px';
+      menu.style.top = e.clientY + 'px';
+      menu.classList.add('visible');
+    }
+
+    // Mobile long-press
+    function handleTouchStart(e, idx) {
+      longPressTimer = setTimeout(() => {
+        longPressTimer = null;
+        e.preventDefault();
+        ctxTargetIdx = idx;
+        const touch = e.touches[0];
+        const menu = document.getElementById('context-menu');
+        menu.style.left = touch.clientX + 'px';
+        menu.style.top = touch.clientY + 'px';
+        menu.classList.add('visible');
+      }, 500);
+    }
+
+    function handleTouchEnd(e) {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+    }
+
+    function ctxSelect() {
+      if (ctxTargetIdx !== null) {
+        if (!selectedTiles.has(ctxTargetIdx)) {
+          selectedTiles.add(ctxTargetIdx);
+        }
+        renderHistoryTiles();
+      }
+      hideContextMenu();
+    }
+
+    function ctxDelete() {
+      if (ctxTargetIdx !== null) {
+        resultHistory.splice(ctxTargetIdx, 1);
+        saveHistory();
+        selectedTiles.clear();
+        if (resultHistory.length === 0) {
+          reset();
+          return;
+        }
+        renderHistoryTiles();
+      }
+      hideContextMenu();
+    }
+
+    function hideContextMenu() {
+      document.getElementById('context-menu').classList.remove('visible');
+      ctxTargetIdx = null;
+    }
+
+    // Close context menu on click elsewhere
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.context-menu')) hideContextMenu();
+    });
+
+    function deleteSelectedResults() {
+      // Sort descending so splice indices stay valid
+      const indices = Array.from(selectedTiles).sort((a, b) => b - a);
+      indices.forEach(i => resultHistory.splice(i, 1));
+      saveHistory();
+      selectedTiles.clear();
+      if (resultHistory.length === 0) {
+        reset();
+        return;
+      }
+      renderHistoryTiles();
+    }
+
+    function deleteAllResults() {
+      resultHistory = [];
+      saveHistory();
+      selectedTiles.clear();
+      reset();
     }
 
     function reset() {
       currentIdx = 0;
-      answers = [];
-      loadPastResult();
+      answers = new Array(25).fill(null);
+      maxAnswered = -1;
+      loadHistory();
       showScreen('home');
     }
 
+    // Keyboard support for quiz
+    document.addEventListener('keydown', function(e) {
+      // Only respond when quiz screen is active
+      if (!document.getElementById('quiz-screen').classList.contains('active')) return;
+      const key = e.key;
+      if (key >= '1' && key <= '5') {
+        handleSelect(parseInt(key));
+      } else if (key === 'ArrowLeft' && currentIdx > 0) {
+        goBack();
+      } else if (key === 'ArrowRight' && answers[currentIdx] !== null && currentIdx < 24) {
+        goNext();
+      } else if (key === 'Escape') {
+        cancelQuiz();
+      }
+    });
+
     // Initialize
-    loadPastResult();
+    loadHistory();
+
+    // Register service worker for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js');
+    }
   </script>
 </body>
 </html>
