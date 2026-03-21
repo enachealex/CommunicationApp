@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conflict Style Assessment</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .screen { display: none; flex: 1; flex-direction: column; }
+    .screen.active { display: flex; }
+
+    /* Home Screen */
+    .home-screen {
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .title {
+      font-size: 28px;
+      font-weight: bold;
+      color: #f8fafc;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .subtitle {
+      font-size: 16px;
+      color: #94a3b8;
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 0 20px;
+    }
+    .btn {
+      width: 100%;
+      max-width: 400px;
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 15px;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background-color: #6366f1; }
+    .btn-secondary { background-color: #334155; }
+    .btn-outline {
+      background-color: transparent;
+      border: 2px solid #334155;
+      color: #f8fafc;
+      margin-top: 10px;
+    }
+
+    /* Quiz Screen */
+    .quiz-screen {
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .progress-bar-container {
+      width: 100%;
+      max-width: 400px;
+      height: 8px;
+      background-color: #334155;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background-color: #6366f1;
+      transition: width 0.3s ease;
+    }
+    .legend-text {
+      color: #94a3b8;
+      font-size: 12px;
+      margin-bottom: 30px;
+      background-color: #1e293b;
+      padding: 8px 15px;
+      border-radius: 8px;
+    }
+    .progress-text {
+      color: #6366f1;
+      font-weight: bold;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    .question-card {
+      background-color: #1e293b;
+      padding: 30px;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 400px;
+      min-height: 150px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 40px;
+      border: 1px solid #334155;
+    }
+    .question {
+      color: #f8fafc;
+      font-size: 20px;
+      text-align: center;
+      line-height: 28px;
+    }
+    .options-container {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 400px;
+      padding: 0 10px;
+    }
+    .circle {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      border: 2px solid #475569;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-weight: bold;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .circle:hover {
+      background-color: #6366f1;
+      border-color: #6366f1;
+      transform: scale(1.1);
+    }
+
+    /* Results Screen */
+    .results-screen {
+      padding: 20px;
+      align-items: center;
+      overflow-y: auto;
+    }
+    .primary-card {
+      background-color: #1e293b;
+      padding: 20px;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 500px;
+      margin-bottom: 15px;
+      border: 1px solid #6366f1;
+    }
+    .primary-title {
+      color: #f8fafc;
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .primary-desc {
+      color: #cbd5e1;
+      font-size: 16px;
+      line-height: 24px;
+      margin-bottom: 15px;
+    }
+    .bullet-item {
+      color: #e0e7ff;
+      font-size: 15px;
+      line-height: 22px;
+      margin-bottom: 8px;
+      padding-left: 10px;
+    }
+    .link-button {
+      background-color: #4f46e5;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      margin-top: 10px;
+      color: white;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      border: none;
+      width: 100%;
+      transition: opacity 0.2s;
+    }
+    .link-button:hover { opacity: 0.85; }
+    .secondary-card {
+      background-color: #0f172a;
+      padding: 20px;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 500px;
+      margin-bottom: 20px;
+      border: 1px solid #475569;
+    }
+    .secondary-title {
+      color: #f8fafc;
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .secondary-desc {
+      color: #94a3b8;
+      font-size: 15px;
+      line-height: 22px;
+      margin-bottom: 15px;
+    }
+    .bullet-item-secondary {
+      color: #cbd5e1;
+      font-size: 14px;
+      line-height: 20px;
+      margin-bottom: 6px;
+      padding-left: 10px;
+    }
+    .score-board {
+      width: 100%;
+      max-width: 500px;
+      background-color: #1e293b;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #334155;
+    }
+    .score-row:last-child { border-bottom: none; }
+    .score-label { color: #f8fafc; font-size: 16px; font-weight: 500; }
+    .score-value { color: #94a3b8; font-size: 16px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <!-- Home Screen -->
+  <div id="home-screen" class="screen home-screen active">
+    <h1 class="title">Conflict Style Assessment</h1>
+    <p class="subtitle">Discover how you naturally navigate disagreements and collaboration.</p>
+    <button class="btn btn-primary" onclick="startQuiz()">Start New Assessment</button>
+    <button class="btn btn-secondary" id="view-past-btn" style="display:none;" onclick="viewPastResults()">View Past Results</button>
+  </div>
+
+  <!-- Quiz Screen -->
+  <div id="quiz-screen" class="screen quiz-screen">
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div class="legend-text">1: Never | 2: Seldom | 3: Sometimes | 4: Often | 5: Always</div>
+    <div class="progress-text" id="progress-text"></div>
+    <div class="question-card">
+      <div class="question" id="question-text"></div>
+    </div>
+    <div class="options-container">
+      <div class="circle" onclick="handleSelect(1)">1</div>
+      <div class="circle" onclick="handleSelect(2)">2</div>
+      <div class="circle" onclick="handleSelect(3)">3</div>
+      <div class="circle" onclick="handleSelect(4)">4</div>
+      <div class="circle" onclick="handleSelect(5)">5</div>
+    </div>
+  </div>
+
+  <!-- Results Screen -->
+  <div id="results-screen" class="screen results-screen">
+    <h1 class="title">Assessment Results</h1>
+    <div id="results-content"></div>
+    <button class="btn btn-outline" onclick="reset()" style="max-width:500px;">Return to Home</button>
+  </div>
+
+  <script>
+    const questions = [
+      "When a disagreement arises, I prefer to stay quiet and keep my opinions to myself to avoid the spotlight.",
+      "I strongly push to get my own way, even if it means stepping on a few toes.",
+      "I suggest meeting halfway so that we can wrap up the conflict quickly and move on.",
+      "I often set aside my own goals to make sure the other person gets what they want.",
+      "I dig deep into the root cause of the problem to find a creative solution that fully satisfies us both.",
+      "I actively steer conversations away from topics that I know might cause an argument.",
+      "I rely on my authority, rank, or leverage to make sure the final decision goes my way.",
+      "When we are deadlocked, I look for a quick trade-off where we each give up a little bit.",
+      "I go along with the other person's ideas, even if I secretly disagree with them.",
+      "I actively combine my ideas with the other person's thoughts to build a completely new, shared plan.",
+      "I will physically or emotionally distance myself from a situation if tension starts to build.",
+      "I use my specialized knowledge or experience to outmaneuver others and win the argument.",
+      "I believe fair is fair, so I try to find a solution where we both get exactly half of what we want.",
+      "I'd rather just give in and agree than expend the energy to keep fighting over something.",
+      "I refuse to settle until we have brainstormed an outcome where neither of us feels like we sacrificed anything.",
+      "I bite my tongue when someone does something that upsets me so I don't hurt their feelings.",
+      "Once I've made up my mind on an issue, I am determined to convince the other person I am right.",
+      "I am willing to sacrifice some of my demands if the other person is willing to do the same.",
+      "I find myself yielding to the other person's suggestions just to maintain harmony in the relationship.",
+      "I share all my underlying concerns honestly and encourage them to do the same so we can tackle the issue as a team.",
+      "I put off having difficult conversations for as long as possible.",
+      "I treat disagreements like a game or a battle where my primary goal is to come out on top.",
+      "I actively try to strike a bargain, focusing on 'give and take' rather than getting everything perfect.",
+      "I prioritize keeping the peace, so I bend over backwards to meet the other person's expectations.",
+      "I bring all hidden issues out into the open, no matter how uncomfortable, so we can address everything thoroughly."
+    ];
+
+    const descriptions = {
+      Avoiding: "Sidestepping conflict. Useful for trivial issues, but can lead to unresolved tension.",
+      Dominating: "Firm and assertive. Highly effective in crises or when standing up for boundaries, but can strain teamwork.",
+      Compromising: "Seeking the middle ground. Values fairness and expediency, requiring both sides to give something up.",
+      Obliging: "Putting others first. Builds social capital and harmony, but risks leaving your own needs unmet.",
+      Integrating: "Collaborating for win-win solutions. Takes time and trust, but results in the strongest resolutions."
+    };
+
+    const STORAGE_KEY = 'conflict_scores';
+    let currentIdx = 0;
+    let answers = [];
+    let pastResult = null;
+
+    // Load past results on start
+    function loadPastResult() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          pastResult = JSON.parse(saved);
+          const btn = document.getElementById('view-past-btn');
+          btn.style.display = 'block';
+          btn.textContent = `View Past Results (${pastResult.date})`;
+        }
+      } catch (e) {
+        console.log("Failed to load data.");
+      }
+    }
+
+    function saveResult(result) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(result));
+        pastResult = result;
+      } catch (e) {
+        console.log("Failed to save data.");
+      }
+    }
+
+    function showScreen(name) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(name + '-screen').classList.add('active');
+    }
+
+    function startQuiz() {
+      currentIdx = 0;
+      answers = [];
+      updateQuizUI();
+      showScreen('quiz');
+    }
+
+    function updateQuizUI() {
+      document.getElementById('progress-bar').style.width = `${(currentIdx / 25) * 100}%`;
+      document.getElementById('progress-text').textContent = `Question ${currentIdx + 1} of 25`;
+      document.getElementById('question-text').textContent = questions[currentIdx];
+    }
+
+    function handleSelect(value) {
+      answers.push(value);
+      if (currentIdx < 24) {
+        currentIdx++;
+        updateQuizUI();
+      } else {
+        finishQuiz();
+      }
+    }
+
+    function finishQuiz() {
+      const scores = { Avoiding: 0, Dominating: 0, Compromising: 0, Obliging: 0, Integrating: 0 };
+      answers.forEach((val, i) => {
+        const qNum = i + 1;
+        if ([1, 6, 11, 16, 21].includes(qNum)) scores.Avoiding += val;
+        else if ([2, 7, 12, 17, 22].includes(qNum)) scores.Dominating += val;
+        else if ([3, 8, 13, 18, 23].includes(qNum)) scores.Compromising += val;
+        else if ([4, 9, 14, 19, 24].includes(qNum)) scores.Obliging += val;
+        else if ([5, 10, 15, 20, 25].includes(qNum)) scores.Integrating += val;
+      });
+
+      const maxScore = Math.max(...Object.values(scores));
+      const primaries = Object.keys(scores).filter(k => scores[k] === maxScore);
+      const secondaries = Object.keys(scores).filter(k => scores[k] >= maxScore - 3 && scores[k] < maxScore);
+
+      const result = { scores, primaries, secondaries, date: new Date().toLocaleDateString() };
+      saveResult(result);
+      showResults(result);
+    }
+
+    function showResults(result) {
+      const { scores, primaries, secondaries } = result;
+      let html = '';
+
+      // Primary card
+      html += '<div class="primary-card">';
+      html += `<div class="primary-title">Primary Style${primaries.length > 1 ? 's' : ''}: ${primaries.join(' & ')}</div>`;
+
+      if (primaries.length > 1) {
+        html += '<div class="primary-desc">You tied for multiple dominant styles. This indicates high adaptability. You likely shift your approach depending on the specific conflict, the stakes involved, or how much energy you have at the moment.</div>';
+        primaries.forEach(p => {
+          html += `<div class="bullet-item">&bull; ${p}: ${descriptions[p]}</div>`;
+        });
+      } else {
+        html += `<div class="primary-desc">${descriptions[primaries[0]]}</div>`;
+      }
+
+      primaries.forEach(p => {
+        html += `<button class="link-button" onclick="openLearnMore('${p}')">Learn about ${p} &rarr;</button>`;
+      });
+      html += '</div>';
+
+      // Secondary card
+      if (secondaries.length > 0) {
+        html += '<div class="secondary-card">';
+        html += `<div class="secondary-title">Close Fallbacks: ${secondaries.join(', ')}</div>`;
+        html += '<div class="secondary-desc">Scoring within 3 points of your dominant style means these are strong secondary strategies. You likely pivot to these naturally when your primary approach hits a wall or when dealing with specific types of people.</div>';
+        secondaries.forEach(s => {
+          html += `<div class="bullet-item-secondary">&bull; ${s}: ${descriptions[s]}</div>`;
+        });
+        html += '</div>';
+      }
+
+      // Score board
+      html += '<div class="score-board">';
+      Object.keys(scores).forEach(key => {
+        html += `<div class="score-row"><span class="score-label">${key}</span><span class="score-value">${scores[key]} / 25</span></div>`;
+      });
+      html += '</div>';
+
+      document.getElementById('results-content').innerHTML = html;
+      showScreen('results');
+    }
+
+    function openLearnMore(style) {
+      const { shell } = require('electron');
+      shell.openExternal(`https://www.google.com/search?q=Thomas+Kilmann+${encodeURIComponent(style)}+Conflict+Management+Style`);
+    }
+
+    function viewPastResults() {
+      if (pastResult) showResults(pastResult);
+    }
+
+    function reset() {
+      currentIdx = 0;
+      answers = [];
+      loadPastResult();
+      showScreen('home');
+    }
+
+    // Initialize
+    loadPastResult();
+  </script>
+</body>
+</html>

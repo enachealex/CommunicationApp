@@ -2,17 +2,42 @@
   "name": "communicationapp",
   "version": "1.0.0",
   "private": true,
-  "main": "node_modules/expo/AppEntry.js",
+  "main": "electron-main.js",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web"
+    "start": "electron .",
+    "build": "electron-builder --win",
+    "expo-start": "expo start",
+    "expo-android": "expo start --android",
+    "expo-ios": "expo start --ios",
+    "expo-web": "expo start --web"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.17.11",
     "expo": "^48.0.0",
     "react": "18.2.0",
-    "react-native": "0.71.8",
-    "@react-native-async-storage/async-storage": "^1.17.11"
+    "react-native": "0.71.8"
+  },
+  "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3",
+    "electron-packager": "^17.1.2"
+  },
+  "build": {
+    "appId": "com.communicationapp.conflictstyle",
+    "productName": "Conflict Style Assessment",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron-main.js",
+      "index.html"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": true,
+      "allowToChangeInstallationDirectory": false
+    }
   }
 }
