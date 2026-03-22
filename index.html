@@ -925,11 +925,14 @@
       document.getElementById('prev-btn').style.display = currentIdx > 0 ? 'block' : 'none';
       var canGoNext = answers[currentIdx] !== null && currentIdx < total - 1 && currentIdx <= maxAnswered;
       document.getElementById('next-btn').style.display = canGoNext ? 'block' : 'none';
+      var container = document.querySelector('.options-container');
+      container.style.pointerEvents = 'none';
       for (var i = 1; i <= 5; i++) {
         var el = document.getElementById('circle-' + i);
         if (answers[currentIdx] === i) el.classList.add('selected');
         else el.classList.remove('selected');
       }
+      setTimeout(function() { container.style.pointerEvents = ''; }, 50);
     }
 
     function handleSelect(value) {
