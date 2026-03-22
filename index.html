@@ -553,6 +553,12 @@
         <div class="hub-card-desc">Discover your natural communication approach — driving, expressing, supporting, or analyzing.</div>
         <span class="hub-card-badge badge-available">20 Questions</span>
       </div>
+      <div class="hub-card" onclick="openAssessment('ei')">
+        <div class="hub-card-icon">&#129504;</div>
+        <div class="hub-card-title">Emotional Intelligence</div>
+        <div class="hub-card-desc">Measure your ability to perceive, manage, and harness emotions — in yourself and others.</div>
+        <span class="hub-card-badge badge-available">20 Questions</span>
+      </div>
     </div>
   </div>
 
@@ -620,6 +626,7 @@
     // Listening: Watson, Barker & Weaver (1995) Listening Styles Profile (LSP-16)
     // Feedback: Stone & Heen (2014) "Thanks for the Feedback" & Linderbaum & Levy (2010) FOS
     // Communication: Merrill & Reid (1981) Social Styles / "Personal Styles and Effective Performance"
+    // Emotional Intelligence: Mayer-Salovey-Caruso & Goleman frameworks (EISA-20)
 
     const assessments = {
       conflict: {
@@ -774,6 +781,51 @@
       }
     };
 
+      ei: {
+        title: 'Emotional Intelligence',
+        subtitle: 'Measure your ability to perceive, manage, and harness emotions in yourself and others.',
+        storageKey: 'ei_scores_history',
+        searchPrefix: '{style}+Emotional+Intelligence+Goleman+Mayer+Salovey',
+        reference: 'Based on the Mayer-Salovey-Caruso Emotional Intelligence model and Goleman (1995) EI framework.',
+        customScoring: 'ei',
+        reverseItems: [1, 4, 6, 9, 11, 14, 16, 19],
+        styles: ['Self-Awareness', 'Self-Management', 'Social Awareness', 'Relationship Management'],
+        descriptions: {
+          'Self-Awareness': "The ability to recognize and name your own emotions as they occur. High scorers accurately identify feelings, understand their triggers, and know how moods affect their behavior and decisions.",
+          'Self-Management': "The ability to regulate emotional impulses and adapt to changing circumstances. High scorers stay composed under pressure, shift negative moods constructively, and think before reacting.",
+          'Social Awareness': "The ability to sense, understand, and respond to others' emotions and social dynamics. High scorers read body language, pick up on unspoken tension, and consider other perspectives naturally.",
+          'Relationship Management': "The ability to inspire, influence, and navigate conflict while preserving relationships. High scorers communicate adaptively, give feedback skillfully, and motivate others through empathy."
+        },
+        overallBands: [
+          { min: 85, max: 100, label: 'High EI', desc: 'Strong emotional insight. You are likely highly resilient, socially adept, and skilled at reading both your own emotions and those of the people around you.' },
+          { min: 60, max: 84, label: 'Moderate EI', desc: 'Generally emotionally aware, but you may struggle during high-stress situations or have occasional blind spots in reading social cues.' },
+          { min: 0, max: 59, label: 'Developing EI', desc: 'Significant opportunity for growth in recognizing and managing emotions. Focused practice in self-reflection and active listening can yield substantial improvement.' }
+        ],
+        questions: [
+          "I can easily name the specific emotion I am feeling at any given moment.",
+          "I find it difficult to explain to others why I am feeling a certain way.",
+          "I recognize the physical signs (like tension or a racing heart) that signal I am stressed.",
+          "I am aware of how my current mood affects the people I am interacting with.",
+          "I am often surprised by my own emotional reactions to certain situations.",
+          "I can stay calm and focused even when things are going wrong or are high-pressure.",
+          "When I am upset, I find it hard to control my impulses or what I say.",
+          "I can shift my mood from negative to positive when I need to get work done.",
+          "I think about the long-term consequences of my actions before I react emotionally.",
+          "I tend to dwell on negative experiences or replay them for a long time.",
+          "I can tell when someone is upset even if they are trying to hide it or act fine.",
+          "I often struggle to understand why others feel the way they do in a conflict.",
+          "I am good at picking up on the vibe or the emotional climate of a room.",
+          "I naturally consider other people's perspectives before making a decision.",
+          "I sometimes miss the subtle social cues people give during a conversation.",
+          "I am able to handle conflict with others in a way that preserves the relationship.",
+          "I find it difficult to give constructive feedback without making someone defensive.",
+          "I am good at motivating and encouraging others when they are feeling discouraged.",
+          "I can adapt my communication style depending on the emotional state of the listener.",
+          "I feel uncomfortable or awkward when others share their deep feelings with me."
+        ]
+      }
+    };
+
     // ===== State =====
     let currentAssessment = null;
     let currentIdx = 0;
@@ -915,15 +967,37 @@
       var config = getConfig();
       var scores = {};
       config.styles.forEach(function(s) { scores[s] = 0; });
-      var numStyles = config.styles.length;
-      answers.forEach(function(val, i) {
-        if (val === null) return;
-        scores[config.styles[i % numStyles]] += val;
-      });
+
+      if (config.customScoring === 'ei') {
+        // EI: reverse-score specific items, then map Q1-5 to style 0, Q6-10 to style 1, etc.
+        var reverseSet = {};
+        config.reverseItems.forEach(function(idx) { reverseSet[idx] = true; });
+        answers.forEach(function(val, i) {
+          if (val === null) return;
+          var scored = reverseSet[i] ? (6 - val) : val;
+          var styleIdx = Math.floor(i / 5);
+          scores[config.styles[styleIdx]] += scored;
+        });
+      } else {
+        var numStyles = config.styles.length;
+        answers.forEach(function(val, i) {
+          if (val === null) return;
+          scores[config.styles[i % numStyles]] += val;
+        });
+      }
+
       var maxScore = Math.max.apply(null, Object.values(scores));
       var primaries = Object.keys(scores).filter(function(k) { return scores[k] === maxScore; });
       var secondaries = Object.keys(scores).filter(function(k) { return scores[k] >= maxScore - 3 && scores[k] < maxScore; });
       var result = { scores: scores, primaries: primaries, secondaries: secondaries, date: new Date().toLocaleDateString(), assessment: currentAssessment };
+
+      // Store overall total for EI
+      if (config.customScoring === 'ei') {
+        var total = 0;
+        Object.values(scores).forEach(function(v) { total += v; });
+        result.overallScore = total;
+      }
+
       addResult(result);
       cameFromHistory = false;
       showResults(result);
@@ -939,10 +1013,22 @@
       var html = '';
       var maxPerStyle = 25;
 
+      // EI: Overall score band at the top
+      if (config.customScoring === 'ei' && result.overallScore !== undefined) {
+        var total = result.overallScore;
+        var band = null;
+        config.overallBands.forEach(function(b) { if (total >= b.min && total <= b.max) band = b; });
+        html += '<div class="primary-card" style="border-color:#a78bfa;">';
+        html += '<div class="primary-title">' + (band ? band.label : 'EI Score') + ': ' + total + ' / 100</div>';
+        html += '<div class="primary-desc">' + (band ? band.desc : '') + '</div>';
+        html += '</div>';
+      }
+
+      // Strongest category card
       html += '<div class="primary-card">';
-      html += '<div class="primary-title">Primary Style' + (primaries.length > 1 ? 's' : '') + ': ' + primaries.join(' & ') + '</div>';
+      html += '<div class="primary-title">' + (config.customScoring === 'ei' ? 'Strongest Area' : 'Primary Style') + (primaries.length > 1 ? 's' : '') + ': ' + primaries.join(' & ') + '</div>';
       if (primaries.length > 1) {
-        html += '<div class="primary-desc">You tied for multiple dominant styles. This indicates high adaptability \u2014 you likely shift your approach depending on the situation, the stakes involved, or your energy at the moment.</div>';
+        html += '<div class="primary-desc">' + (config.customScoring === 'ei' ? 'You scored equally in multiple areas, showing well-rounded emotional skills.' : 'You tied for multiple dominant styles. This indicates high adaptability \u2014 you likely shift your approach depending on the situation, the stakes involved, or your energy at the moment.') + '</div>';
         primaries.forEach(function(p) {
           html += '<div class="bullet-item">&bull; ' + p + ': ' + config.descriptions[p] + '</div>';
         });
@@ -956,12 +1042,27 @@
 
       if (secondaries.length > 0) {
         html += '<div class="secondary-card">';
-        html += '<div class="secondary-title">Close Fallbacks: ' + secondaries.join(', ') + '</div>';
-        html += '<div class="secondary-desc">Scoring within 3 points of your dominant style means these are strong secondary strategies. You likely pivot to these naturally when your primary approach hits a wall.</div>';
+        html += '<div class="secondary-title">' + (config.customScoring === 'ei' ? 'Close Behind: ' : 'Close Fallbacks: ') + secondaries.join(', ') + '</div>';
+        html += '<div class="secondary-desc">' + (config.customScoring === 'ei' ? 'These areas scored within 3 points of your strongest. Small, focused effort here can round out your emotional intelligence significantly.' : 'Scoring within 3 points of your dominant style means these are strong secondary strategies. You likely pivot to these naturally when your primary approach hits a wall.') + '</div>';
         secondaries.forEach(function(s) {
           html += '<div class="bullet-item-secondary">&bull; ' + s + ': ' + config.descriptions[s] + '</div>';
         });
         html += '</div>';
+      }
+
+      // EI: show weakest area if significantly lower
+      if (config.customScoring === 'ei') {
+        var minScore = Math.min.apply(null, Object.values(scores));
+        var maxScore = Math.max.apply(null, Object.values(scores));
+        if (maxScore - minScore >= 4) {
+          var weakest = Object.keys(scores).filter(function(k) { return scores[k] === minScore; });
+          html += '<div class="secondary-card" style="border-color:#f87171;">';
+          html += '<div class="secondary-title" style="color:#f87171;">Area for Growth: ' + weakest.join(', ') + '</div>';
+          weakest.forEach(function(w) {
+            html += '<div class="bullet-item-secondary">&bull; ' + config.descriptions[w] + '</div>';
+          });
+          html += '</div>';
+        }
       }
 
       html += '<div class="score-board">';
@@ -1030,6 +1131,9 @@
         html += '<span class="tile-date">' + r.date + '</span>';
         html += '</div>';
         html += '<div class="tile-primary">' + r.primaries.join(' & ') + '</div>';
+        if (r.overallScore !== undefined) {
+          html += '<div style="color:#a78bfa; font-size:14px; font-weight:600; margin-bottom:6px;">Overall: ' + r.overallScore + ' / 100</div>';
+        }
         html += '<div class="tile-scores">';
         Object.keys(r.scores).forEach(function(key) {
           html += '<span class="tile-score-chip">' + key + ': ' + r.scores[key] + '</span>';
