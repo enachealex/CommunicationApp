@@ -499,6 +499,27 @@
     .context-menu-item:hover { background-color: #334155; }
     .context-menu-item.danger { color: #f87171; }
     .context-menu-item.danger:hover { background-color: #3b1a1a; }
+
+    /* Back-button exit toast */
+    .back-toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #334155;
+      color: #f8fafc;
+      padding: 12px 24px;
+      border-radius: 24px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .back-toast.visible {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -591,6 +612,7 @@
     <div class="context-menu-item" id="ctx-select" onclick="ctxSelect()">Select</div>
     <div class="context-menu-item danger" id="ctx-delete" onclick="ctxDelete()">Delete</div>
   </div>
+  <div class="back-toast" id="back-toast">Press back again to exit</div>
 
   <script>
     // ===== Assessment Configurations =====
@@ -1115,6 +1137,71 @@
       else if (key === 'ArrowLeft' && currentIdx > 0) goBack();
       else if (key === 'ArrowRight' && answers[currentIdx] !== null && currentIdx < total - 1) goNext();
       else if (key === 'Escape') cancelQuiz();
+    });
+
+    // ===== Android Back Button (History API) =====
+    var backExitReady = false;
+    var backExitTimer = null;
+
+    function getActiveScreen() {
+      var el = document.querySelector('.screen.active');
+      return el ? el.id.replace('-screen', '') : 'home';
+    }
+
+    function pushNavState(screen) {
+      history.pushState({ screen: screen }, '');
+    }
+
+    // Patch showScreen to push browser history state
+    var _origShowScreen = showScreen;
+    showScreen = function(name) {
+      _origShowScreen(name);
+      // Only push if the current history state differs
+      if (!history.state || history.state.screen !== name) {
+        pushNavState(name);
+      }
+    };
+
+    // Set initial state
+    history.replaceState({ screen: 'home' }, '');
+
+    window.addEventListener('popstate', function(e) {
+      var screen = getActiveScreen();
+
+      // Close context menu if open
+      var ctxMenu = document.getElementById('context-menu');
+      if (ctxMenu.classList.contains('visible')) {
+        hideContextMenu();
+        pushNavState(screen);
+        return;
+      }
+
+      // Navigate based on current screen
+      if (screen === 'home') {
+        // Already at root — double-tap to exit
+        if (backExitReady) {
+          // Let the browser/PWA close naturally
+          return;
+        }
+        backExitReady = true;
+        var toast = document.getElementById('back-toast');
+        toast.classList.add('visible');
+        backExitTimer = setTimeout(function() {
+          backExitReady = false;
+          toast.classList.remove('visible');
+        }, 2000);
+        // Re-push so we stay on the page
+        pushNavState('home');
+      } else if (screen === 'assessment-home') {
+        _origShowScreen('home');
+        pushNavState('home');
+      } else if (screen === 'quiz') {
+        cancelQuiz();
+      } else if (screen === 'results') {
+        resultsGoBack();
+      } else if (screen === 'history') {
+        backToAssessmentHome();
+      }
     });
 
     // Register service worker for PWA
