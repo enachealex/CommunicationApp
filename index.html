@@ -202,10 +202,12 @@
       cursor: pointer;
       transition: all 0.15s;
     }
-    .circle:hover {
-      background-color: #6366f1;
-      border-color: #6366f1;
-      transform: scale(1.1);
+    @media (hover: hover) {
+      .circle:hover {
+        background-color: #6366f1;
+        border-color: #6366f1;
+        transform: scale(1.1);
+      }
     }
     .circle.selected {
       background-color: #6366f1;
