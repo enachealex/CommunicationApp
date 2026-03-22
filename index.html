@@ -186,6 +186,7 @@
       width: 100%;
       max-width: 400px;
       padding: 0 10px;
+      -webkit-tap-highlight-color: transparent;
     }
     .circle {
       width: 55px;
@@ -202,6 +203,12 @@
       cursor: pointer;
       transition: all 0.15s;
       -webkit-tap-highlight-color: transparent;
+      outline: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .circle:focus {
+      outline: none;
     }
     .circle:active {
       background-color: #6366f1;
