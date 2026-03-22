@@ -435,8 +435,8 @@
       left: -6px;
       top: 50%;
       transform: translateY(-50%);
-      width: 22px;
-      height: 22px;
+      width: 28px;
+      height: 28px;
       border-radius: 6px;
       border: 2px solid #475569;
       background-color: #0f172a;
@@ -461,6 +461,15 @@
     /* Desktop: show checkbox on hover */
     @media (hover: hover) {
       .history-tile:hover .tile-checkbox,
+      .history-tile.tile-selected .tile-checkbox {
+        opacity: 1;
+      }
+    }
+    /* Mobile: always show checkboxes since there is no hover */
+    @media (hover: none) {
+      .tile-checkbox {
+        opacity: 0.6;
+      }
       .history-tile.tile-selected .tile-checkbox {
         opacity: 1;
       }
@@ -1006,6 +1015,7 @@
     // ===== Results =====
     function showResults(result) {
       var assessmentKey = result.assessment || currentAssessment;
+      viewingAssessmentKey = assessmentKey;
       var config = assessments[assessmentKey];
       var scores = result.scores;
       var primaries = result.primaries;
@@ -1086,8 +1096,11 @@
       }
     }
 
+    var viewingAssessmentKey = null;
+
     function openLearnMore(style) {
-      var config = getConfig();
+      var key = viewingAssessmentKey || currentAssessment;
+      var config = assessments[key];
       var query = config.searchPrefix.replace('{style}', encodeURIComponent(style));
       var url = 'https://www.google.com/search?q=' + query;
       try {
@@ -1172,14 +1185,14 @@
     }
 
     function handleTouchStart(e, idx) {
+      var touchX = e.touches[0].clientX;
+      var touchY = e.touches[0].clientY;
       longPressTimer = setTimeout(function() {
         longPressTimer = null;
-        e.preventDefault();
         ctxTargetIdx = idx;
-        var touch = e.touches[0];
         var menu = document.getElementById('context-menu');
-        menu.style.left = touch.clientX + 'px';
-        menu.style.top = touch.clientY + 'px';
+        menu.style.left = touchX + 'px';
+        menu.style.top = touchY + 'px';
         menu.classList.add('visible');
       }, 500);
     }
