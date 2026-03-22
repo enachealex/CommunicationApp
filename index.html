@@ -508,31 +508,37 @@
     <h1 class="title" style="margin-top:40px;">Communication Styles</h1>
     <p class="subtitle">Explore how you communicate, collaborate, and navigate relationships.</p>
     <div class="hub-cards">
-      <div class="hub-card" onclick="openConflictStyle()">
+      <div class="hub-card" onclick="openAssessment('conflict')">
         <div class="hub-card-icon">&#9878;</div>
         <div class="hub-card-title">Conflict Style Assessment</div>
         <div class="hub-card-desc">Discover how you naturally handle disagreements — avoiding, dominating, compromising, obliging, or integrating.</div>
         <span class="hub-card-badge badge-available">25 Questions</span>
       </div>
-      <div class="hub-card disabled">
+      <div class="hub-card" onclick="openAssessment('listening')">
         <div class="hub-card-icon">&#128483;</div>
         <div class="hub-card-title">Listening Style Profile</div>
-        <div class="hub-card-desc">Understand whether you listen to connect, analyze, support, or respond — and how it shapes conversations.</div>
-        <span class="hub-card-badge badge-coming">Coming Soon</span>
+        <div class="hub-card-desc">Understand whether you listen to connect, analyze, act, or manage time — and how it shapes your conversations.</div>
+        <span class="hub-card-badge badge-available">20 Questions</span>
       </div>
-      <div class="hub-card disabled">
+      <div class="hub-card" onclick="openAssessment('feedback')">
         <div class="hub-card-icon">&#129309;</div>
         <div class="hub-card-title">Feedback Style Inventory</div>
-        <div class="hub-card-desc">Learn how you give and receive feedback — direct, diplomatic, analytical, or empathetic.</div>
-        <span class="hub-card-badge badge-coming">Coming Soon</span>
+        <div class="hub-card-desc">Learn how you give and receive feedback — direct, supportive, analytical, or reflective.</div>
+        <span class="hub-card-badge badge-available">20 Questions</span>
+      </div>
+      <div class="hub-card" onclick="openAssessment('communication')">
+        <div class="hub-card-icon">&#128172;</div>
+        <div class="hub-card-title">Communication Style</div>
+        <div class="hub-card-desc">Discover your natural communication approach — driving, expressing, supporting, or analyzing.</div>
+        <span class="hub-card-badge badge-available">20 Questions</span>
       </div>
     </div>
   </div>
 
-  <!-- Conflict Style Landing -->
-  <div id="conflict-home-screen" class="screen home-screen">
-    <h1 class="title" style="margin-top:40px;">Conflict Style Assessment</h1>
-    <p class="subtitle">Discover how you naturally navigate disagreements and collaboration.</p>
+  <!-- Assessment Landing -->
+  <div id="assessment-home-screen" class="screen home-screen">
+    <h1 class="title" id="assessment-title" style="margin-top:40px;"></h1>
+    <p class="subtitle" id="assessment-subtitle"></p>
     <button class="btn btn-primary" onclick="startQuiz()">Start New Assessment</button>
     <button class="btn btn-secondary" id="view-past-btn" style="display:none;" onclick="viewPastResults()">View Past Results</button>
     <button class="btn btn-outline" onclick="showScreen('home')" style="max-width:400px;">&#8592; Back to Hub</button>
@@ -579,7 +585,7 @@
       <button class="toolbar-btn btn-danger" onclick="deleteAllResults()">Delete All</button>
     </div>
     <div class="history-tiles" id="history-tiles"></div>
-    <button class="btn btn-outline" onclick="backToConflictHome()" style="max-width:500px;">Return to Home</button>
+    <button class="btn btn-outline" onclick="backToAssessmentHome()" style="max-width:500px;">Return to Home</button>
   </div>
   <div class="context-menu" id="context-menu">
     <div class="context-menu-item" id="ctx-select" onclick="ctxSelect()">Select</div>
@@ -587,45 +593,169 @@
   </div>
 
   <script>
-    const questions = [
-      "When a disagreement arises, I prefer to stay quiet and keep my opinions to myself to avoid the spotlight.",
-      "I strongly push to get my own way, even if it means stepping on a few toes.",
-      "I suggest meeting halfway so that we can wrap up the conflict quickly and move on.",
-      "I often set aside my own goals to make sure the other person gets what they want.",
-      "I dig deep into the root cause of the problem to find a creative solution that fully satisfies us both.",
-      "I actively steer conversations away from topics that I know might cause an argument.",
-      "I rely on my authority, rank, or leverage to make sure the final decision goes my way.",
-      "When we are deadlocked, I look for a quick trade-off where we each give up a little bit.",
-      "I go along with the other person's ideas, even if I secretly disagree with them.",
-      "I actively combine my ideas with the other person's thoughts to build a completely new, shared plan.",
-      "I will physically or emotionally distance myself from a situation if tension starts to build.",
-      "I use my specialized knowledge or experience to outmaneuver others and win the argument.",
-      "I believe fair is fair, so I try to find a solution where we both get exactly half of what we want.",
-      "I'd rather just give in and agree than expend the energy to keep fighting over something.",
-      "I refuse to settle until we have brainstormed an outcome where neither of us feels like we sacrificed anything.",
-      "I bite my tongue when someone does something that upsets me so I don't hurt their feelings.",
-      "Once I've made up my mind on an issue, I am determined to convince the other person I am right.",
-      "I am willing to sacrifice some of my demands if the other person is willing to do the same.",
-      "I find myself yielding to the other person's suggestions just to maintain harmony in the relationship.",
-      "I share all my underlying concerns honestly and encourage them to do the same so we can tackle the issue as a team.",
-      "I put off having difficult conversations for as long as possible.",
-      "I treat disagreements like a game or a battle where my primary goal is to come out on top.",
-      "I actively try to strike a bargain, focusing on 'give and take' rather than getting everything perfect.",
-      "I prioritize keeping the peace, so I bend over backwards to meet the other person's expectations.",
-      "I bring all hidden issues out into the open, no matter how uncomfortable, so we can address everything thoroughly."
-    ];
+    // ===== Assessment Configurations =====
+    // Conflict: Thomas-Kilmann Conflict Mode Instrument (TKI) & Rahim (1983) ROCI-II
+    // Listening: Watson, Barker & Weaver (1995) Listening Styles Profile (LSP-16)
+    // Feedback: Stone & Heen (2014) "Thanks for the Feedback" & Linderbaum & Levy (2010) FOS
+    // Communication: Merrill & Reid (1981) Social Styles / "Personal Styles and Effective Performance"
 
-    const descriptions = {
-      Avoiding: "Sidestepping conflict. Useful for trivial issues, but can lead to unresolved tension.",
-      Dominating: "Firm and assertive. Highly effective in crises or when standing up for boundaries, but can strain teamwork.",
-      Compromising: "Seeking the middle ground. Values fairness and expediency, requiring both sides to give something up.",
-      Obliging: "Putting others first. Builds social capital and harmony, but risks leaving your own needs unmet.",
-      Integrating: "Collaborating for win-win solutions. Takes time and trust, but results in the strongest resolutions."
+    const assessments = {
+      conflict: {
+        title: 'Conflict Style Assessment',
+        subtitle: 'Discover how you naturally navigate disagreements and collaboration.',
+        storageKey: 'conflict_scores_history',
+        searchPrefix: 'Thomas+Kilmann+{style}+Conflict+Management+Style',
+        reference: 'Based on the Thomas-Kilmann Conflict Mode Instrument (TKI) and Rahim (1983) ROCI-II frameworks.',
+        styles: ['Avoiding', 'Dominating', 'Compromising', 'Obliging', 'Integrating'],
+        descriptions: {
+          Avoiding: "Sidestepping conflict. Useful for trivial issues, but can lead to unresolved tension.",
+          Dominating: "Firm and assertive. Highly effective in crises or when standing up for boundaries, but can strain teamwork.",
+          Compromising: "Seeking the middle ground. Values fairness and expediency, requiring both sides to give something up.",
+          Obliging: "Putting others first. Builds social capital and harmony, but risks leaving your own needs unmet.",
+          Integrating: "Collaborating for win-win solutions. Takes time and trust, but results in the strongest resolutions."
+        },
+        questions: [
+          "When a disagreement arises, I prefer to stay quiet and keep my opinions to myself to avoid the spotlight.",
+          "I strongly push to get my own way, even if it means stepping on a few toes.",
+          "I suggest meeting halfway so that we can wrap up the conflict quickly and move on.",
+          "I often set aside my own goals to make sure the other person gets what they want.",
+          "I dig deep into the root cause of the problem to find a creative solution that fully satisfies us both.",
+          "I actively steer conversations away from topics that I know might cause an argument.",
+          "I rely on my authority, rank, or leverage to make sure the final decision goes my way.",
+          "When we are deadlocked, I look for a quick trade-off where we each give up a little bit.",
+          "I go along with the other person's ideas, even if I secretly disagree with them.",
+          "I actively combine my ideas with the other person's thoughts to build a completely new, shared plan.",
+          "I will physically or emotionally distance myself from a situation if tension starts to build.",
+          "I use my specialized knowledge or experience to outmaneuver others and win the argument.",
+          "I believe fair is fair, so I try to find a solution where we both get exactly half of what we want.",
+          "I'd rather just give in and agree than expend the energy to keep fighting over something.",
+          "I refuse to settle until we have brainstormed an outcome where neither of us feels like we sacrificed anything.",
+          "I bite my tongue when someone does something that upsets me so I don't hurt their feelings.",
+          "Once I've made up my mind on an issue, I am determined to convince the other person I am right.",
+          "I am willing to sacrifice some of my demands if the other person is willing to do the same.",
+          "I find myself yielding to the other person's suggestions just to maintain harmony in the relationship.",
+          "I share all my underlying concerns honestly and encourage them to do the same so we can tackle the issue as a team.",
+          "I put off having difficult conversations for as long as possible.",
+          "I treat disagreements like a game or a battle where my primary goal is to come out on top.",
+          "I actively try to strike a bargain, focusing on 'give and take' rather than getting everything perfect.",
+          "I prioritize keeping the peace, so I bend over backwards to meet the other person's expectations.",
+          "I bring all hidden issues out into the open, no matter how uncomfortable, so we can address everything thoroughly."
+        ]
+      },
+      listening: {
+        title: 'Listening Style Profile',
+        subtitle: 'Understand how you listen and process information in conversations.',
+        storageKey: 'listening_scores_history',
+        searchPrefix: '{style}+Listening+Style+communication+research',
+        reference: 'Based on the Listening Styles Profile (LSP-16) framework by Watson, Barker & Weaver (1995).',
+        styles: ['People-Oriented', 'Action-Oriented', 'Content-Oriented', 'Time-Oriented'],
+        descriptions: {
+          'People-Oriented': "Empathetic and relationship-focused. You listen to connect with others\u2019 emotions and build trust. Strengths include strong rapport and emotional intelligence, though you may sometimes absorb others\u2019 stress.",
+          'Action-Oriented': "Task-driven and organized. You listen for clear steps, decisions, and outcomes. Strengths include efficiency and follow-through, though you may miss emotional nuance or rush speakers.",
+          'Content-Oriented': "Analytical and evaluative. You listen to assess logic, evidence, and depth. Strengths include critical thinking and thoroughness, though others may feel interrogated or judged.",
+          'Time-Oriented': "Structured and efficient. You listen with an awareness of time and brevity. Strengths include productivity and focus, though impatience can make speakers feel cut short."
+        },
+        questions: [
+          "When someone is speaking, I focus on understanding their feelings and emotions before anything else.",
+          "I prefer speakers who get straight to the point without lengthy introductions or side stories.",
+          "I enjoy listening to complex arguments and evaluating the quality of the evidence presented.",
+          "I mentally set a time limit for how long I am willing to listen to someone talk about a topic.",
+          "I find myself naturally empathizing with the speaker, even if their situation does not directly affect me.",
+          "I find myself mentally organizing what the speaker is saying into action items or next steps.",
+          "I frequently play devil\u2019s advocate in my mind while listening to someone\u2019s perspective.",
+          "I prefer brief meetings and conversations that stick to a schedule and finish on time.",
+          "I prefer conversations where people open up about their personal experiences and feelings.",
+          "I get impatient when someone takes too long to reach their main point in a conversation.",
+          "I pay close attention to the logic and consistency of what is being said before forming my opinion.",
+          "I find myself glancing at the clock or my phone when a conversation goes on longer than expected.",
+          "I notice changes in a speaker\u2019s tone or mood and adjust my responses to show I care.",
+          "I listen primarily for what needs to be done next and who is responsible for doing it.",
+          "I prefer in-depth conversations that explore multiple sides of an issue rather than surface-level chats.",
+          "I steer conversations back on track when they start to wander off-topic or take too long.",
+          "I believe the most important part of listening is making the other person feel heard and valued.",
+          "I appreciate speakers who present information in an organized, step-by-step manner.",
+          "I often ask probing follow-up questions to better understand the reasoning behind someone\u2019s statements.",
+          "I value conciseness in communication and feel frustrated when people repeat themselves unnecessarily."
+        ]
+      },
+      feedback: {
+        title: 'Feedback Style Inventory',
+        subtitle: 'Learn how you give and receive feedback in professional and personal settings.',
+        storageKey: 'feedback_scores_history',
+        searchPrefix: '{style}+Feedback+Style+giving+receiving+workplace',
+        reference: 'Based on feedback research by Stone & Heen (2014) "Thanks for the Feedback" and the Feedback Orientation Scale by Linderbaum & Levy (2010).',
+        styles: ['Direct', 'Supportive', 'Analytical', 'Reflective'],
+        descriptions: {
+          Direct: "Clear and candid. You deliver feedback straightforwardly, valuing honesty over comfort. Effective in urgent situations, though it can feel blunt if not balanced with empathy.",
+          Supportive: "Encouraging and warm. You lead with positives and frame feedback as growth. Builds confidence and trust, though important concerns may get softened or lost.",
+          Analytical: "Evidence-based and systematic. You ground feedback in data, examples, and benchmarks. Highly credible and fair, though it may feel clinical or impersonal.",
+          Reflective: "Collaborative and questioning. You guide others to self-discovery through dialogue. Promotes ownership and deep learning, though some may prefer clearer direction."
+        },
+        questions: [
+          "When giving feedback, I state exactly what I observed and what needs to change, without sugarcoating it.",
+          "I always begin a feedback conversation by highlighting what the person is doing well before addressing concerns.",
+          "When giving feedback, I always back up my observations with specific data, examples, or measurable outcomes.",
+          "Instead of telling someone what to fix, I ask guiding questions so they can discover the answer themselves.",
+          "I believe honest, straightforward feedback \u2014 even when uncomfortable \u2014 is the kindest thing you can give someone.",
+          "I frame criticism as suggestions for growth rather than pointing out failures or shortcomings.",
+          "I prefer to compare current performance against clear benchmarks or standards when evaluating someone\u2019s work.",
+          "I encourage people to self-assess their own performance before I share my perspective on their work.",
+          "I rarely hesitate to point out mistakes because I think people deserve to know the truth quickly.",
+          "I believe building someone\u2019s confidence is just as important as correcting their mistakes.",
+          "I believe feedback should be based on observable facts and patterns, not subjective impressions or gut feelings.",
+          "I believe the best feedback conversations are two-way dialogues, not one-sided evaluations or lectures.",
+          "When receiving feedback, I prefer people to tell me exactly what went wrong rather than hinting at it.",
+          "I consider the emotional impact my words will have before delivering any constructive feedback.",
+          "I document recurring issues over time so that I can provide well-supported feedback during formal reviews.",
+          "I help people reflect on their own behavior by asking \u2018What do you think went well?\u2019 before offering input.",
+          "I would rather hear blunt criticism that helps me improve than vague praise that teaches me nothing.",
+          "I make sure to follow up after giving feedback to check in on how the person is feeling about it.",
+          "When receiving feedback, I ask for concrete examples and evidence to fully understand what is being communicated.",
+          "I see feedback as a collaborative process where both parties learn and grow from the exchange together."
+        ]
+      },
+      communication: {
+        title: 'Communication Style',
+        subtitle: 'Discover your natural communication approach in groups and one-on-one.',
+        storageKey: 'communication_scores_history',
+        searchPrefix: '{style}+Communication+Social+Style+Merrill+Reid',
+        reference: 'Based on the Social Styles model by Merrill & Reid (1981) "Personal Styles and Effective Performance."',
+        styles: ['Driver', 'Expressive', 'Amiable', 'Analytical'],
+        descriptions: {
+          Driver: "Results-focused and decisive. You communicate to move things forward efficiently. Strengths include clarity and direction, though others may perceive you as impatient or controlling.",
+          Expressive: "Enthusiastic and visionary. You communicate with energy, stories, and big ideas. Strengths include inspiration and creativity, though details may be overlooked.",
+          Amiable: "Warm and consensus-building. You communicate to include and harmonize. Strengths include teamwork and trust, though you may avoid necessary confrontation.",
+          Analytical: "Precise and methodical. You communicate with data, logic, and careful preparation. Strengths include accuracy and thoroughness, though you may be seen as reserved or slow to decide."
+        },
+        questions: [
+          "I prefer to take charge in group discussions and steer the conversation toward a clear decision quickly.",
+          "I use stories, humor, and enthusiasm to engage people when I am sharing my ideas.",
+          "I go out of my way to make sure everyone in a group feels comfortable and included in the conversation.",
+          "Before I speak, I carefully think through my words to ensure precision, accuracy, and logical consistency.",
+          "I value efficiency in communication and avoid small talk when there is important business to discuss.",
+          "I speak with visible emotion and energy, and others can easily tell when I am excited about something.",
+          "I prefer to reach consensus before moving forward, even if it takes longer to get everyone on board.",
+          "I prefer communicating in writing so I can organize my thoughts clearly and reference them later.",
+          "When presenting ideas, I focus on bottom-line results and practical outcomes rather than abstract concepts.",
+          "I enjoy brainstorming sessions where creative ideas flow freely without too many rules or constraints.",
+          "I tend to avoid confrontation and will adjust my own position to maintain harmony within the group.",
+          "I ask detailed questions and request supporting data before accepting a new idea or proposal.",
+          "I make decisions quickly and expect others to keep up with the pace I set in conversations.",
+          "I naturally inspire and motivate others through my passion and positive energy during conversations.",
+          "I listen patiently to everyone\u2019s viewpoint before sharing my own opinion in a discussion.",
+          "I am uncomfortable making statements or decisions without sufficient information and thorough analysis.",
+          "I am more concerned with getting the right result than with how others feel about the process.",
+          "I prefer big-picture thinking and leave the fine details for others to work out after the vision is set.",
+          "Building and maintaining strong personal relationships is more important to me than winning an argument.",
+          "Others sometimes perceive me as reserved because I prefer to observe and think before contributing to conversations."
+        ]
+      }
     };
 
-    const STORAGE_KEY = 'conflict_scores_history';
+    // ===== State =====
+    let currentAssessment = null;
     let currentIdx = 0;
-    let answers = new Array(25).fill(null);
+    let answers = [];
     let maxAnswered = -1;
     let resultHistory = [];
     let selectedTiles = new Set();
@@ -633,45 +763,41 @@
     let longPressTimer = null;
     let cameFromHistory = false;
 
-    function loadHistory() {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          resultHistory = JSON.parse(saved);
-        }
-        // Migrate old single-result format
-        const oldSaved = localStorage.getItem('conflict_scores');
-        if (oldSaved) {
-          const old = JSON.parse(oldSaved);
-          if (old && old.scores) {
-            if (!old.id) old.id = Date.now();
-            resultHistory.unshift(old);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(resultHistory));
-            localStorage.removeItem('conflict_scores');
-          }
-        }
-      } catch (e) {
-        console.log("Failed to load data.");
-      }
-      updateHomeBtn();
+    function getConfig() { return assessments[currentAssessment]; }
+
+    function showScreen(name) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(name + '-screen').classList.add('active');
     }
 
-    function updateHomeBtn() {
-      const btn = document.getElementById('view-past-btn');
-      if (resultHistory.length > 0) {
-        btn.style.display = 'block';
-        btn.textContent = `View Past Results (${resultHistory.length})`;
-      } else {
-        btn.style.display = 'none';
-      }
+    // ===== Storage =====
+    function loadHistory() {
+      const config = getConfig();
+      resultHistory = [];
+      try {
+        const saved = localStorage.getItem(config.storageKey);
+        if (saved) resultHistory = JSON.parse(saved);
+        // Migrate old conflict single-result format
+        if (currentAssessment === 'conflict') {
+          const oldSaved = localStorage.getItem('conflict_scores');
+          if (oldSaved) {
+            const old = JSON.parse(oldSaved);
+            if (old && old.scores) {
+              if (!old.id) old.id = Date.now();
+              resultHistory.unshift(old);
+              localStorage.setItem(config.storageKey, JSON.stringify(resultHistory));
+              localStorage.removeItem('conflict_scores');
+            }
+          }
+        }
+      } catch (e) { console.log("Failed to load data."); }
+      updateHomeBtn();
     }
 
     function saveHistory() {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(resultHistory));
-      } catch (e) {
-        console.log("Failed to save data.");
-      }
+        localStorage.setItem(getConfig().storageKey, JSON.stringify(resultHistory));
+      } catch (e) { console.log("Failed to save data."); }
     }
 
     function addResult(result) {
@@ -680,57 +806,62 @@
       saveHistory();
     }
 
-    function openConflictStyle() {
+    function updateHomeBtn() {
+      const btn = document.getElementById('view-past-btn');
+      if (resultHistory.length > 0) {
+        btn.style.display = 'block';
+        btn.textContent = 'View Past Results (' + resultHistory.length + ')';
+      } else {
+        btn.style.display = 'none';
+      }
+    }
+
+    // ===== Assessment Landing =====
+    function openAssessment(key) {
+      currentAssessment = key;
+      const config = getConfig();
+      document.getElementById('assessment-title').textContent = config.title;
+      document.getElementById('assessment-subtitle').textContent = config.subtitle;
       loadHistory();
-      showScreen('conflict-home');
+      showScreen('assessment-home');
     }
 
-    function backToConflictHome() {
+    function backToAssessmentHome() {
       loadHistory();
-      showScreen('conflict-home');
+      showScreen('assessment-home');
     }
 
-    function showScreen(name) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(name + '-screen').classList.add('active');
-    }
-
+    // ===== Quiz =====
     function startQuiz() {
+      const config = getConfig();
       currentIdx = 0;
-      answers = new Array(25).fill(null);
+      answers = new Array(config.questions.length).fill(null);
       maxAnswered = -1;
       updateQuizUI();
       showScreen('quiz');
     }
 
     function updateQuizUI() {
-      document.getElementById('progress-bar').style.width = `${((maxAnswered + 1) / 25) * 100}%`;
-      document.getElementById('progress-text').textContent = `Question ${currentIdx + 1} of 25`;
-      document.getElementById('question-text').textContent = questions[currentIdx];
-
-      // Show/hide Previous button
+      const config = getConfig();
+      const total = config.questions.length;
+      document.getElementById('progress-bar').style.width = ((maxAnswered + 1) / total * 100) + '%';
+      document.getElementById('progress-text').textContent = 'Question ' + (currentIdx + 1) + ' of ' + total;
+      document.getElementById('question-text').textContent = config.questions[currentIdx];
       document.getElementById('prev-btn').style.display = currentIdx > 0 ? 'block' : 'none';
-
-      // Show Next button only if current question already answered and not the last answered
-      const hasAnswer = answers[currentIdx] !== null;
-      const canGoNext = hasAnswer && currentIdx < 24 && currentIdx <= maxAnswered;
+      var canGoNext = answers[currentIdx] !== null && currentIdx < total - 1 && currentIdx <= maxAnswered;
       document.getElementById('next-btn').style.display = canGoNext ? 'block' : 'none';
-
-      // Highlight selected circle
-      for (let i = 1; i <= 5; i++) {
-        const el = document.getElementById('circle-' + i);
-        if (answers[currentIdx] === i) {
-          el.classList.add('selected');
-        } else {
-          el.classList.remove('selected');
-        }
+      for (var i = 1; i <= 5; i++) {
+        var el = document.getElementById('circle-' + i);
+        if (answers[currentIdx] === i) el.classList.add('selected');
+        else el.classList.remove('selected');
       }
     }
 
     function handleSelect(value) {
       answers[currentIdx] = value;
       if (currentIdx > maxAnswered) maxAnswered = currentIdx;
-      if (currentIdx < 24) {
+      var total = getConfig().questions.length;
+      if (currentIdx < total - 1) {
         currentIdx++;
         updateQuizUI();
       } else {
@@ -739,14 +870,12 @@
     }
 
     function goBack() {
-      if (currentIdx > 0) {
-        currentIdx--;
-        updateQuizUI();
-      }
+      if (currentIdx > 0) { currentIdx--; updateQuizUI(); }
     }
 
     function goNext() {
-      if (answers[currentIdx] !== null && currentIdx < 24) {
+      var total = getConfig().questions.length;
+      if (answers[currentIdx] !== null && currentIdx < total - 1) {
         currentIdx++;
         updateQuizUI();
       }
@@ -754,73 +883,71 @@
 
     function cancelQuiz() {
       currentIdx = 0;
-      answers = new Array(25).fill(null);
+      answers = [];
       maxAnswered = -1;
       loadHistory();
-      showScreen('conflict-home');
+      showScreen('assessment-home');
     }
 
     function finishQuiz() {
-      const scores = { Avoiding: 0, Dominating: 0, Compromising: 0, Obliging: 0, Integrating: 0 };
-      answers.forEach((val, i) => {
+      var config = getConfig();
+      var scores = {};
+      config.styles.forEach(function(s) { scores[s] = 0; });
+      var numStyles = config.styles.length;
+      answers.forEach(function(val, i) {
         if (val === null) return;
-        const qNum = i + 1;
-        if ([1, 6, 11, 16, 21].includes(qNum)) scores.Avoiding += val;
-        else if ([2, 7, 12, 17, 22].includes(qNum)) scores.Dominating += val;
-        else if ([3, 8, 13, 18, 23].includes(qNum)) scores.Compromising += val;
-        else if ([4, 9, 14, 19, 24].includes(qNum)) scores.Obliging += val;
-        else if ([5, 10, 15, 20, 25].includes(qNum)) scores.Integrating += val;
+        scores[config.styles[i % numStyles]] += val;
       });
-
-      const maxScore = Math.max(...Object.values(scores));
-      const primaries = Object.keys(scores).filter(k => scores[k] === maxScore);
-      const secondaries = Object.keys(scores).filter(k => scores[k] >= maxScore - 3 && scores[k] < maxScore);
-
-      const result = { scores, primaries, secondaries, date: new Date().toLocaleDateString() };
+      var maxScore = Math.max.apply(null, Object.values(scores));
+      var primaries = Object.keys(scores).filter(function(k) { return scores[k] === maxScore; });
+      var secondaries = Object.keys(scores).filter(function(k) { return scores[k] >= maxScore - 3 && scores[k] < maxScore; });
+      var result = { scores: scores, primaries: primaries, secondaries: secondaries, date: new Date().toLocaleDateString(), assessment: currentAssessment };
       addResult(result);
       cameFromHistory = false;
       showResults(result);
     }
 
+    // ===== Results =====
     function showResults(result) {
-      const { scores, primaries, secondaries } = result;
-      let html = '';
+      var assessmentKey = result.assessment || currentAssessment;
+      var config = assessments[assessmentKey];
+      var scores = result.scores;
+      var primaries = result.primaries;
+      var secondaries = result.secondaries;
+      var html = '';
+      var maxPerStyle = 25;
 
-      // Primary card
       html += '<div class="primary-card">';
-      html += `<div class="primary-title">Primary Style${primaries.length > 1 ? 's' : ''}: ${primaries.join(' & ')}</div>`;
-
+      html += '<div class="primary-title">Primary Style' + (primaries.length > 1 ? 's' : '') + ': ' + primaries.join(' & ') + '</div>';
       if (primaries.length > 1) {
-        html += '<div class="primary-desc">You tied for multiple dominant styles. This indicates high adaptability. You likely shift your approach depending on the specific conflict, the stakes involved, or how much energy you have at the moment.</div>';
-        primaries.forEach(p => {
-          html += `<div class="bullet-item">&bull; ${p}: ${descriptions[p]}</div>`;
+        html += '<div class="primary-desc">You tied for multiple dominant styles. This indicates high adaptability \u2014 you likely shift your approach depending on the situation, the stakes involved, or your energy at the moment.</div>';
+        primaries.forEach(function(p) {
+          html += '<div class="bullet-item">&bull; ' + p + ': ' + config.descriptions[p] + '</div>';
         });
       } else {
-        html += `<div class="primary-desc">${descriptions[primaries[0]]}</div>`;
+        html += '<div class="primary-desc">' + config.descriptions[primaries[0]] + '</div>';
       }
-
-      primaries.forEach(p => {
-        html += `<button class="link-button" onclick="openLearnMore('${p}')">Learn about ${p} &rarr;</button>`;
+      primaries.forEach(function(p) {
+        html += '<button class="link-button" onclick="openLearnMore(\'' + p.replace(/'/g, "\\'") + '\')">Learn about ' + p + ' &rarr;</button>';
       });
       html += '</div>';
 
-      // Secondary card
       if (secondaries.length > 0) {
         html += '<div class="secondary-card">';
-        html += `<div class="secondary-title">Close Fallbacks: ${secondaries.join(', ')}</div>`;
-        html += '<div class="secondary-desc">Scoring within 3 points of your dominant style means these are strong secondary strategies. You likely pivot to these naturally when your primary approach hits a wall or when dealing with specific types of people.</div>';
-        secondaries.forEach(s => {
-          html += `<div class="bullet-item-secondary">&bull; ${s}: ${descriptions[s]}</div>`;
+        html += '<div class="secondary-title">Close Fallbacks: ' + secondaries.join(', ') + '</div>';
+        html += '<div class="secondary-desc">Scoring within 3 points of your dominant style means these are strong secondary strategies. You likely pivot to these naturally when your primary approach hits a wall.</div>';
+        secondaries.forEach(function(s) {
+          html += '<div class="bullet-item-secondary">&bull; ' + s + ': ' + config.descriptions[s] + '</div>';
         });
         html += '</div>';
       }
 
-      // Score board
       html += '<div class="score-board">';
-      Object.keys(scores).forEach(key => {
-        html += `<div class="score-row"><span class="score-label">${key}</span><span class="score-value">${scores[key]} / 25</span></div>`;
+      Object.keys(scores).forEach(function(key) {
+        html += '<div class="score-row"><span class="score-label">' + key + '</span><span class="score-value">' + scores[key] + ' / ' + maxPerStyle + '</span></div>';
       });
       html += '</div>';
+      html += '<div style="color:#64748b; font-size:12px; text-align:center; margin-bottom:20px; padding:0 20px; line-height:18px;">' + config.reference + '</div>';
 
       document.getElementById('results-content').innerHTML = html;
       document.getElementById('results-back-btn').textContent = cameFromHistory ? 'Back to Past Results' : 'Return to Home';
@@ -832,20 +959,23 @@
         cameFromHistory = false;
         viewPastResults();
       } else {
-        backToConflictHome();
+        backToAssessmentHome();
       }
     }
 
     function openLearnMore(style) {
-      const url = `https://www.google.com/search?q=Thomas+Kilmann+${encodeURIComponent(style)}+Conflict+Management+Style`;
+      var config = getConfig();
+      var query = config.searchPrefix.replace('{style}', encodeURIComponent(style));
+      var url = 'https://www.google.com/search?q=' + query;
       try {
-        const { shell } = require('electron');
+        var shell = require('electron').shell;
         shell.openExternal(url);
       } catch (e) {
         window.open(url, '_blank');
       }
     }
 
+    // ===== History =====
     function viewPastResults() {
       selectedTiles.clear();
       renderHistoryTiles();
@@ -853,8 +983,8 @@
     }
 
     function renderHistoryTiles() {
-      const container = document.getElementById('history-tiles');
-      const delSelBtn = document.getElementById('delete-selected-btn');
+      var container = document.getElementById('history-tiles');
+      var delSelBtn = document.getElementById('delete-selected-btn');
       delSelBtn.style.display = selectedTiles.size > 0 ? 'inline-block' : 'none';
 
       if (resultHistory.length === 0) {
@@ -863,40 +993,33 @@
       }
 
       container.className = 'history-tiles' + (selectedTiles.size > 0 ? ' select-mode' : '');
-      let html = '';
-      resultHistory.forEach((r, i) => {
-        const isSelected = selectedTiles.has(i);
-        html += `<div class="history-tile${isSelected ? ' tile-selected' : ''}" data-index="${i}"
-          onclick="handleTileClick(event, ${i})"
-          oncontextmenu="handleTileContext(event, ${i})"
-          ontouchstart="handleTouchStart(event, ${i})"
-          ontouchend="handleTouchEnd(event)"
-          ontouchmove="handleTouchEnd(event)">`;
-        html += `<div class="tile-checkbox${isSelected ? ' checked' : ''}" onclick="toggleTileSelect(event, ${i})"></div>`;
-        html += `<div class="tile-header">`;
-        html += `<span class="tile-attempt">Attempt #${resultHistory.length - i}</span>`;
-        html += `<span class="tile-date">${r.date}</span>`;
-        html += `</div>`;
-        html += `<div class="tile-primary">${r.primaries.join(' & ')}</div>`;
-        html += `<div class="tile-scores">`;
-        Object.keys(r.scores).forEach(key => {
-          html += `<span class="tile-score-chip">${key}: ${r.scores[key]}</span>`;
+      var html = '';
+      resultHistory.forEach(function(r, i) {
+        var isSelected = selectedTiles.has(i);
+        html += '<div class="history-tile' + (isSelected ? ' tile-selected' : '') + '" data-index="' + i + '"';
+        html += ' onclick="handleTileClick(event, ' + i + ')"';
+        html += ' oncontextmenu="handleTileContext(event, ' + i + ')"';
+        html += ' ontouchstart="handleTouchStart(event, ' + i + ')"';
+        html += ' ontouchend="handleTouchEnd(event)"';
+        html += ' ontouchmove="handleTouchEnd(event)">';
+        html += '<div class="tile-checkbox' + (isSelected ? ' checked' : '') + '" onclick="toggleTileSelect(event, ' + i + ')"></div>';
+        html += '<div class="tile-header">';
+        html += '<span class="tile-attempt">Attempt #' + (resultHistory.length - i) + '</span>';
+        html += '<span class="tile-date">' + r.date + '</span>';
+        html += '</div>';
+        html += '<div class="tile-primary">' + r.primaries.join(' & ') + '</div>';
+        html += '<div class="tile-scores">';
+        Object.keys(r.scores).forEach(function(key) {
+          html += '<span class="tile-score-chip">' + key + ': ' + r.scores[key] + '</span>';
         });
-        html += `</div></div>`;
+        html += '</div></div>';
       });
       container.innerHTML = html;
     }
 
-    // --- Tile interactions ---
-
     function handleTileClick(e, idx) {
       if (e.defaultPrevented) return;
-      // If in select mode, toggle selection
-      if (selectedTiles.size > 0) {
-        toggleTileSelectByIdx(idx);
-        return;
-      }
-      // Normal click: view that result
+      if (selectedTiles.size > 0) { toggleTileSelectByIdx(idx); return; }
       cameFromHistory = true;
       showResults(resultHistory[idx]);
     }
@@ -908,32 +1031,27 @@
     }
 
     function toggleTileSelectByIdx(idx) {
-      if (selectedTiles.has(idx)) {
-        selectedTiles.delete(idx);
-      } else {
-        selectedTiles.add(idx);
-      }
+      if (selectedTiles.has(idx)) selectedTiles.delete(idx);
+      else selectedTiles.add(idx);
       renderHistoryTiles();
     }
 
-    // Desktop right-click
     function handleTileContext(e, idx) {
       e.preventDefault();
       ctxTargetIdx = idx;
-      const menu = document.getElementById('context-menu');
+      var menu = document.getElementById('context-menu');
       menu.style.left = e.clientX + 'px';
       menu.style.top = e.clientY + 'px';
       menu.classList.add('visible');
     }
 
-    // Mobile long-press
     function handleTouchStart(e, idx) {
-      longPressTimer = setTimeout(() => {
+      longPressTimer = setTimeout(function() {
         longPressTimer = null;
         e.preventDefault();
         ctxTargetIdx = idx;
-        const touch = e.touches[0];
-        const menu = document.getElementById('context-menu');
+        var touch = e.touches[0];
+        var menu = document.getElementById('context-menu');
         menu.style.left = touch.clientX + 'px';
         menu.style.top = touch.clientY + 'px';
         menu.classList.add('visible');
@@ -941,17 +1059,12 @@
     }
 
     function handleTouchEnd(e) {
-      if (longPressTimer) {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-      }
+      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
     }
 
     function ctxSelect() {
-      if (ctxTargetIdx !== null) {
-        if (!selectedTiles.has(ctxTargetIdx)) {
-          selectedTiles.add(ctxTargetIdx);
-        }
+      if (ctxTargetIdx !== null && !selectedTiles.has(ctxTargetIdx)) {
+        selectedTiles.add(ctxTargetIdx);
         renderHistoryTiles();
       }
       hideContextMenu();
@@ -962,10 +1075,7 @@
         resultHistory.splice(ctxTargetIdx, 1);
         saveHistory();
         selectedTiles.clear();
-        if (resultHistory.length === 0) {
-          reset();
-          return;
-        }
+        if (resultHistory.length === 0) { backToAssessmentHome(); hideContextMenu(); return; }
         renderHistoryTiles();
       }
       hideContextMenu();
@@ -976,21 +1086,16 @@
       ctxTargetIdx = null;
     }
 
-    // Close context menu on click elsewhere
     document.addEventListener('click', function(e) {
       if (!e.target.closest('.context-menu')) hideContextMenu();
     });
 
     function deleteSelectedResults() {
-      // Sort descending so splice indices stay valid
-      const indices = Array.from(selectedTiles).sort((a, b) => b - a);
-      indices.forEach(i => resultHistory.splice(i, 1));
+      var indices = Array.from(selectedTiles).sort(function(a, b) { return b - a; });
+      indices.forEach(function(i) { resultHistory.splice(i, 1); });
       saveHistory();
       selectedTiles.clear();
-      if (resultHistory.length === 0) {
-        reset();
-        return;
-      }
+      if (resultHistory.length === 0) { backToAssessmentHome(); return; }
       renderHistoryTiles();
     }
 
@@ -998,35 +1103,19 @@
       resultHistory = [];
       saveHistory();
       selectedTiles.clear();
-      backToConflictHome();
-    }
-
-    function reset() {
-      currentIdx = 0;
-      answers = new Array(25).fill(null);
-      maxAnswered = -1;
-      loadHistory();
-      showScreen('conflict-home');
+      backToAssessmentHome();
     }
 
     // Keyboard support for quiz
     document.addEventListener('keydown', function(e) {
-      // Only respond when quiz screen is active
       if (!document.getElementById('quiz-screen').classList.contains('active')) return;
-      const key = e.key;
-      if (key >= '1' && key <= '5') {
-        handleSelect(parseInt(key));
-      } else if (key === 'ArrowLeft' && currentIdx > 0) {
-        goBack();
-      } else if (key === 'ArrowRight' && answers[currentIdx] !== null && currentIdx < 24) {
-        goNext();
-      } else if (key === 'Escape') {
-        cancelQuiz();
-      }
+      var key = e.key;
+      var total = getConfig() ? getConfig().questions.length : 25;
+      if (key >= '1' && key <= '5') handleSelect(parseInt(key));
+      else if (key === 'ArrowLeft' && currentIdx > 0) goBack();
+      else if (key === 'ArrowRight' && answers[currentIdx] !== null && currentIdx < total - 1) goNext();
+      else if (key === 'Escape') cancelQuiz();
     });
-
-    // Initialize
-    loadHistory();
 
     // Register service worker for PWA
     if ('serviceWorker' in navigator) {
