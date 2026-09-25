@@ -1101,11 +1101,10 @@
       var config = assessments[key];
       var query = config.searchPrefix.replace('{style}', encodeURIComponent(style));
       var url = 'https://www.google.com/search?q=' + query;
-      try {
-        var shell = require('electron').shell;
-        shell.openExternal(url);
-      } catch (e) {
-        window.open(url, '_blank');
+      if (window.electronAPI) {
+        window.electronAPI.openExternal(url);
+      } else {
+        window.open(url, '_blank', 'noopener');
       }
     }
 
@@ -1255,6 +1254,11 @@
     });
 
     // ===== Android Back Button (History API) =====
+    // The app keeps exactly one "guard" history entry on top of a base entry.
+    // Pressing back pops the guard; we handle the navigation in-app and re-add
+    // the guard. On the home screen we leave the guard off for 2 seconds so a
+    // second back press actually leaves the app. Screen changes never push
+    // history, so the stack can't grow no matter how much the user navigates.
     var backExitReady = false;
     var backExitTimer = null;
 
@@ -1263,53 +1267,43 @@
       return el ? el.id.replace('-screen', '') : 'home';
     }
 
-    function pushNavState(screen) {
-      history.pushState({ screen: screen }, '');
+    function armBackGuard() {
+      if (backExitReady) return;
+      if (!(history.state && history.state.guard)) {
+        history.pushState({ guard: true }, '');
+      }
     }
 
-    // Patch showScreen to push browser history state
-    var _origShowScreen = showScreen;
-    showScreen = function(name) {
-      _origShowScreen(name);
-      // Only push if the current history state differs
-      if (!history.state || history.state.screen !== name) {
-        pushNavState(name);
-      }
-    };
+    history.replaceState({ base: true }, '');
+    armBackGuard();
+    // Browsers may skip entries pushed without user interaction, so re-check
+    // the guard whenever the user interacts with the page.
+    document.addEventListener('pointerdown', armBackGuard, true);
+    document.addEventListener('keydown', armBackGuard, true);
 
-    // Set initial state
-    history.replaceState({ screen: 'home' }, '');
-
-    window.addEventListener('popstate', function(e) {
+    window.addEventListener('popstate', function() {
+      // Guard was just popped; we are now on the base entry. (Landing on the
+      // guard means the user pressed Forward, which needs no handling.)
+      if (history.state && history.state.guard) return;
       var screen = getActiveScreen();
 
-      // Close context menu if open
       var ctxMenu = document.getElementById('context-menu');
       if (ctxMenu.classList.contains('visible')) {
         hideContextMenu();
-        pushNavState(screen);
-        return;
-      }
-
-      // Navigate based on current screen
-      if (screen === 'home') {
-        // Already at root — double-tap to exit
-        if (backExitReady) {
-          // Let the browser/PWA close naturally
-          return;
-        }
+      } else if (screen === 'home') {
+        // Show the toast and leave the guard off: the next back press exits.
         backExitReady = true;
         var toast = document.getElementById('back-toast');
         toast.classList.add('visible');
+        clearTimeout(backExitTimer);
         backExitTimer = setTimeout(function() {
           backExitReady = false;
           toast.classList.remove('visible');
+          armBackGuard();
         }, 2000);
-        // Re-push so we stay on the page
-        pushNavState('home');
+        return;
       } else if (screen === 'assessment-home') {
-        _origShowScreen('home');
-        pushNavState('home');
+        showScreen('home');
       } else if (screen === 'quiz') {
         cancelQuiz();
       } else if (screen === 'results') {
@@ -1317,6 +1311,7 @@
       } else if (screen === 'history') {
         backToAssessmentHome();
       }
+      armBackGuard();
     });
 
     // Register service worker for PWA
