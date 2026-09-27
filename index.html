@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Communication Styles</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#6366f1">
@@ -19,10 +19,17 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      touch-action: manipulation;
     }
 
     .screen { display: none; flex: 1; flex-direction: column; }
     .screen.active { display: flex; }
+    .screen:focus { outline: none; }
+    button { font-family: inherit; }
+    button:focus-visible, [tabindex="0"]:focus-visible {
+      outline: 2px solid #a5b4fc;
+      outline-offset: 3px;
+    }
 
     /* Home Screen */
     .home-screen {
@@ -78,6 +85,11 @@
       margin-bottom: 20px;
     }
     .hub-card {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font: inherit;
+      color: inherit;
       background-color: #1e293b;
       border: 1px solid #334155;
       border-radius: 16px;
@@ -92,6 +104,7 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(99, 102, 241, 0.15);
     }
+    .hub-card-icon, .hub-card-title, .hub-card-desc { display: block; }
     .hub-card-icon {
       font-size: 32px;
       margin-bottom: 12px;
@@ -200,6 +213,7 @@
       color: #f8fafc;
       font-weight: bold;
       font-size: 18px;
+      padding: 0;
       cursor: pointer;
       transition: all 0.15s;
       -webkit-tap-highlight-color: transparent;
@@ -209,6 +223,10 @@
     }
     .circle:focus {
       outline: none;
+    }
+    .circle:focus-visible {
+      outline: 2px solid #a5b4fc;
+      outline-offset: 3px;
     }
     .circle:active {
       background-color: #6366f1;
@@ -499,6 +517,12 @@
     }
     .context-menu.visible { display: block; }
     .context-menu-item {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      font: inherit;
       padding: 10px 18px;
       color: #f8fafc;
       font-size: 14px;
@@ -534,45 +558,45 @@
 <body>
 
   <!-- Home Screen -->
-  <div id="home-screen" class="screen home-screen active">
+  <div id="home-screen" tabindex="-1" class="screen home-screen active">
     <h1 class="title" style="margin-top:40px;">Communication Styles</h1>
     <p class="subtitle">Explore how you communicate, collaborate, and navigate relationships.</p>
     <div class="hub-cards">
-      <div class="hub-card" onclick="openAssessment('conflict')">
-        <div class="hub-card-icon">&#9878;</div>
-        <div class="hub-card-title">Conflict Style Assessment</div>
-        <div class="hub-card-desc">Discover how you naturally handle disagreements — avoiding, dominating, compromising, obliging, or integrating.</div>
+      <button type="button" class="hub-card" onclick="openAssessment('conflict')">
+        <span class="hub-card-icon" aria-hidden="true">&#9878;</span>
+        <span class="hub-card-title">Conflict Style Assessment</span>
+        <span class="hub-card-desc">Discover how you naturally handle disagreements — avoiding, dominating, compromising, obliging, or integrating.</span>
         <span class="hub-card-badge badge-available">25 Questions</span>
-      </div>
-      <div class="hub-card" onclick="openAssessment('listening')">
-        <div class="hub-card-icon">&#128483;</div>
-        <div class="hub-card-title">Listening Style Profile</div>
-        <div class="hub-card-desc">Understand whether you listen to connect, analyze, act, or manage time — and how it shapes your conversations.</div>
+      </button>
+      <button type="button" class="hub-card" onclick="openAssessment('listening')">
+        <span class="hub-card-icon" aria-hidden="true">&#128483;</span>
+        <span class="hub-card-title">Listening Style Profile</span>
+        <span class="hub-card-desc">Understand whether you listen to connect, analyze, act, or manage time — and how it shapes your conversations.</span>
         <span class="hub-card-badge badge-available">20 Questions</span>
-      </div>
-      <div class="hub-card" onclick="openAssessment('feedback')">
-        <div class="hub-card-icon">&#129309;</div>
-        <div class="hub-card-title">Feedback Style Inventory</div>
-        <div class="hub-card-desc">Learn how you give and receive feedback — direct, supportive, analytical, or reflective.</div>
+      </button>
+      <button type="button" class="hub-card" onclick="openAssessment('feedback')">
+        <span class="hub-card-icon" aria-hidden="true">&#129309;</span>
+        <span class="hub-card-title">Feedback Style Inventory</span>
+        <span class="hub-card-desc">Learn how you give and receive feedback — direct, supportive, analytical, or reflective.</span>
         <span class="hub-card-badge badge-available">20 Questions</span>
-      </div>
-      <div class="hub-card" onclick="openAssessment('communication')">
-        <div class="hub-card-icon">&#128172;</div>
-        <div class="hub-card-title">Communication Style</div>
-        <div class="hub-card-desc">Discover your natural communication approach — driving, expressing, supporting, or analyzing.</div>
+      </button>
+      <button type="button" class="hub-card" onclick="openAssessment('communication')">
+        <span class="hub-card-icon" aria-hidden="true">&#128172;</span>
+        <span class="hub-card-title">Communication Style</span>
+        <span class="hub-card-desc">Discover your natural communication approach — driving, expressing, supporting, or analyzing.</span>
         <span class="hub-card-badge badge-available">20 Questions</span>
-      </div>
-      <div class="hub-card" onclick="openAssessment('ei')">
-        <div class="hub-card-icon">&#129504;</div>
-        <div class="hub-card-title">Emotional Intelligence</div>
-        <div class="hub-card-desc">Measure your ability to perceive, manage, and harness emotions — in yourself and others.</div>
+      </button>
+      <button type="button" class="hub-card" onclick="openAssessment('ei')">
+        <span class="hub-card-icon" aria-hidden="true">&#129504;</span>
+        <span class="hub-card-title">Emotional Intelligence</span>
+        <span class="hub-card-desc">Measure your ability to perceive, manage, and harness emotions — in yourself and others.</span>
         <span class="hub-card-badge badge-available">20 Questions</span>
-      </div>
+      </button>
     </div>
   </div>
 
   <!-- Assessment Landing -->
-  <div id="assessment-home-screen" class="screen home-screen">
+  <div id="assessment-home-screen" tabindex="-1" class="screen home-screen">
     <h1 class="title" id="assessment-title" style="margin-top:40px;"></h1>
     <p class="subtitle" id="assessment-subtitle"></p>
     <button class="btn btn-primary" onclick="startQuiz()">Start New Assessment</button>
@@ -581,7 +605,7 @@
   </div>
 
   <!-- Quiz Screen -->
-  <div id="quiz-screen" class="screen quiz-screen">
+  <div id="quiz-screen" tabindex="-1" class="screen quiz-screen">
     <div class="quiz-top-row">
       <button class="cancel-btn" onclick="cancelQuiz()">&#x2715; Cancel</button>
       <div class="progress-bar-container" style="margin-bottom:0; flex:1; margin-left:10px;">
@@ -594,27 +618,27 @@
       <div class="progress-text" id="progress-text"></div>
       <button class="nav-btn next" id="next-btn" onclick="goNext()" style="display:none;">Next &#8594;</button>
     </div>
-    <div class="question-card">
+    <div class="question-card" aria-live="polite">
       <div class="question" id="question-text"></div>
     </div>
-    <div class="options-container">
-      <div class="circle" id="circle-1" onclick="handleSelect(1)">1</div>
-      <div class="circle" id="circle-2" onclick="handleSelect(2)">2</div>
-      <div class="circle" id="circle-3" onclick="handleSelect(3)">3</div>
-      <div class="circle" id="circle-4" onclick="handleSelect(4)">4</div>
-      <div class="circle" id="circle-5" onclick="handleSelect(5)">5</div>
+    <div class="options-container" role="group" aria-label="Your answer">
+      <button type="button" class="circle" id="circle-1" aria-label="1: Never" onclick="handleSelect(1)">1</button>
+      <button type="button" class="circle" id="circle-2" aria-label="2: Seldom" onclick="handleSelect(2)">2</button>
+      <button type="button" class="circle" id="circle-3" aria-label="3: Sometimes" onclick="handleSelect(3)">3</button>
+      <button type="button" class="circle" id="circle-4" aria-label="4: Often" onclick="handleSelect(4)">4</button>
+      <button type="button" class="circle" id="circle-5" aria-label="5: Always" onclick="handleSelect(5)">5</button>
     </div>
   </div>
 
   <!-- Results Screen -->
-  <div id="results-screen" class="screen results-screen">
+  <div id="results-screen" tabindex="-1" class="screen results-screen">
     <h1 class="title">Assessment Results</h1>
     <div id="results-content"></div>
     <button class="btn btn-outline" id="results-back-btn" onclick="resultsGoBack()" style="max-width:500px;">Return to Home</button>
   </div>
 
   <!-- History Screen -->
-  <div id="history-screen" class="screen history-screen">
+  <div id="history-screen" tabindex="-1" class="screen history-screen">
     <h1 class="title">Past Results</h1>
     <div class="history-toolbar" id="history-toolbar">
       <button class="toolbar-btn btn-danger-outline" id="delete-selected-btn" style="display:none;" onclick="deleteSelectedResults()">Delete Selected</button>
@@ -623,11 +647,11 @@
     <div class="history-tiles" id="history-tiles"></div>
     <button class="btn btn-outline" onclick="backToAssessmentHome()" style="max-width:500px;">Return to Home</button>
   </div>
-  <div class="context-menu" id="context-menu">
-    <div class="context-menu-item" id="ctx-select" onclick="ctxSelect()">Select</div>
-    <div class="context-menu-item danger" id="ctx-delete" onclick="ctxDelete()">Delete</div>
+  <div class="context-menu" id="context-menu" role="menu">
+    <button type="button" class="context-menu-item" role="menuitem" id="ctx-select" onclick="ctxSelect()">Select</button>
+    <button type="button" class="context-menu-item danger" role="menuitem" id="ctx-delete" onclick="ctxDelete()">Delete</button>
   </div>
-  <div class="back-toast" id="back-toast">Press back again to exit</div>
+  <div class="back-toast" id="back-toast" role="status">Press back again to exit</div>
 
   <script>
     // ===== Assessment Configurations =====
@@ -848,7 +872,26 @@
 
     function showScreen(name) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(name + '-screen').classList.add('active');
+      var screen = document.getElementById(name + '-screen');
+      screen.classList.add('active');
+      // Move focus to the new screen so keyboard and screen reader users aren't
+      // left on a control that just disappeared.
+      screen.focus({ preventScroll: true });
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, function(c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    function formatResultDate(r) {
+      // Newer results store a timestamp; older ones only have a date string.
+      return r.timestamp ? new Date(r.timestamp).toLocaleDateString() : (r.date || '');
+    }
+
+    function isValidResult(r) {
+      return !!r && typeof r === 'object' && !!r.scores && typeof r.scores === 'object' && Array.isArray(r.primaries);
     }
 
     // ===== Storage =====
@@ -856,22 +899,23 @@
       const config = getConfig();
       resultHistory = [];
       try {
-        const saved = localStorage.getItem(config.storageKey);
-        if (saved) resultHistory = JSON.parse(saved);
-        // Migrate old conflict single-result format
-        if (currentAssessment === 'conflict') {
-          const oldSaved = localStorage.getItem('conflict_scores');
+        var parsed = JSON.parse(localStorage.getItem(config.storageKey) || '[]');
+        if (Array.isArray(parsed)) resultHistory = parsed.filter(isValidResult);
+      } catch (e) { console.log("Failed to load data."); }
+      // Migrate old conflict single-result format
+      if (currentAssessment === 'conflict') {
+        try {
+          var oldSaved = localStorage.getItem('conflict_scores');
           if (oldSaved) {
-            const old = JSON.parse(oldSaved);
-            if (old && old.scores) {
-              if (!old.id) old.id = Date.now();
+            var old = JSON.parse(oldSaved);
+            if (isValidResult(old)) {
               resultHistory.unshift(old);
               localStorage.setItem(config.storageKey, JSON.stringify(resultHistory));
-              localStorage.removeItem('conflict_scores');
             }
+            localStorage.removeItem('conflict_scores');
           }
-        }
-      } catch (e) { console.log("Failed to load data."); }
+        } catch (e) { console.log("Failed to migrate old data."); }
+      }
       updateHomeBtn();
     }
 
@@ -882,7 +926,6 @@
     }
 
     function addResult(result) {
-      result.id = Date.now();
       resultHistory.unshift(result);
       saveHistory();
     }
@@ -963,6 +1006,7 @@
     }
 
     function cancelQuiz() {
+      if (maxAnswered >= 0 && !confirm('Leave this assessment? Your answers so far will be lost.')) return;
       currentIdx = 0;
       answers = [];
       maxAnswered = -1;
@@ -996,7 +1040,7 @@
       var maxScore = Math.max.apply(null, Object.values(scores));
       var primaries = Object.keys(scores).filter(function(k) { return scores[k] === maxScore; });
       var secondaries = Object.keys(scores).filter(function(k) { return scores[k] >= maxScore - 3 && scores[k] < maxScore; });
-      var result = { scores: scores, primaries: primaries, secondaries: secondaries, date: new Date().toLocaleDateString(), assessment: currentAssessment };
+      var result = { scores: scores, primaries: primaries, secondaries: secondaries, timestamp: Date.now(), assessment: currentAssessment };
 
       // Store overall total for EI
       if (config.customScoring === 'ei') {
@@ -1017,9 +1061,9 @@
       var config = assessments[assessmentKey];
       var scores = result.scores;
       var primaries = result.primaries;
-      var secondaries = result.secondaries;
+      var secondaries = result.secondaries || [];
       var html = '';
-      var maxPerStyle = 25;
+      var maxPerStyle = (config.questions.length / config.styles.length) * 5;
 
       // EI: Overall score band at the top
       if (config.customScoring === 'ei' && result.overallScore !== undefined) {
@@ -1075,7 +1119,7 @@
 
       html += '<div class="score-board">';
       Object.keys(scores).forEach(function(key) {
-        html += '<div class="score-row"><span class="score-label">' + key + '</span><span class="score-value">' + scores[key] + ' / ' + maxPerStyle + '</span></div>';
+        html += '<div class="score-row"><span class="score-label">' + escapeHtml(key) + '</span><span class="score-value">' + escapeHtml(scores[key]) + ' / ' + maxPerStyle + '</span></div>';
       });
       html += '</div>';
       html += '<div style="color:#64748b; font-size:12px; text-align:center; margin-bottom:20px; padding:0 20px; line-height:18px;">' + config.reference + '</div>';
@@ -1129,24 +1173,29 @@
       var html = '';
       resultHistory.forEach(function(r, i) {
         var isSelected = selectedTiles.has(i);
+        var attempt = resultHistory.length - i;
         html += '<div class="history-tile' + (isSelected ? ' tile-selected' : '') + '" data-index="' + i + '"';
+        html += ' role="button" tabindex="0" aria-label="Open attempt #' + attempt + '"';
         html += ' onclick="handleTileClick(event, ' + i + ')"';
+        html += ' onkeydown="handleTileKey(event, ' + i + ')"';
         html += ' oncontextmenu="handleTileContext(event, ' + i + ')"';
         html += ' ontouchstart="handleTouchStart(event, ' + i + ')"';
         html += ' ontouchend="handleTouchEnd(event)"';
-        html += ' ontouchmove="handleTouchEnd(event)">';
-        html += '<div class="tile-checkbox' + (isSelected ? ' checked' : '') + '" onclick="toggleTileSelect(event, ' + i + ')"></div>';
+        html += ' ontouchmove="cancelLongPress()">';
+        html += '<div class="tile-checkbox' + (isSelected ? ' checked' : '') + '" role="checkbox" tabindex="0"';
+        html += ' aria-checked="' + isSelected + '" aria-label="Select attempt #' + attempt + '"';
+        html += ' onclick="toggleTileSelect(event, ' + i + ')" onkeydown="handleCheckboxKey(event, ' + i + ')"></div>';
         html += '<div class="tile-header">';
-        html += '<span class="tile-attempt">Attempt #' + (resultHistory.length - i) + '</span>';
-        html += '<span class="tile-date">' + r.date + '</span>';
+        html += '<span class="tile-attempt">Attempt #' + attempt + '</span>';
+        html += '<span class="tile-date">' + escapeHtml(formatResultDate(r)) + '</span>';
         html += '</div>';
-        html += '<div class="tile-primary">' + r.primaries.join(' & ') + '</div>';
+        html += '<div class="tile-primary">' + escapeHtml(r.primaries.join(' & ')) + '</div>';
         if (r.overallScore !== undefined) {
-          html += '<div style="color:#a78bfa; font-size:14px; font-weight:600; margin-bottom:6px;">Overall: ' + r.overallScore + ' / 100</div>';
+          html += '<div style="color:#a78bfa; font-size:14px; font-weight:600; margin-bottom:6px;">Overall: ' + escapeHtml(r.overallScore) + ' / 100</div>';
         }
         html += '<div class="tile-scores">';
         Object.keys(r.scores).forEach(function(key) {
-          html += '<span class="tile-score-chip">' + key + ': ' + r.scores[key] + '</span>';
+          html += '<span class="tile-score-chip">' + escapeHtml(key) + ': ' + escapeHtml(r.scores[key]) + '</span>';
         });
         html += '</div></div>';
       });
@@ -1154,47 +1203,91 @@
     }
 
     function handleTileClick(e, idx) {
-      if (e.defaultPrevented) return;
       if (selectedTiles.size > 0) { toggleTileSelectByIdx(idx); return; }
       cameFromHistory = true;
       showResults(resultHistory[idx]);
     }
 
+    function handleTileKey(e, idx) {
+      if (e.target !== e.currentTarget) return;
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleTileClick(e, idx);
+      }
+    }
+
     function toggleTileSelect(e, idx) {
       e.preventDefault();
       e.stopPropagation();
-      toggleTileSelectByIdx(idx);
+      toggleTileSelectByIdx(idx, true);
     }
 
-    function toggleTileSelectByIdx(idx) {
+    function handleCheckboxKey(e, idx) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleTileSelectByIdx(idx, true);
+      }
+    }
+
+    function toggleTileSelectByIdx(idx, refocusCheckbox) {
       if (selectedTiles.has(idx)) selectedTiles.delete(idx);
       else selectedTiles.add(idx);
       renderHistoryTiles();
+      if (refocusCheckbox) {
+        var box = document.querySelector('.history-tile[data-index="' + idx + '"] .tile-checkbox');
+        if (box) box.focus();
+      }
+    }
+
+    function showContextMenu(idx, x, y) {
+      ctxTargetIdx = idx;
+      var menu = document.getElementById('context-menu');
+      menu.classList.add('visible');
+      // Keep the whole menu on screen near the right and bottom edges.
+      var rect = menu.getBoundingClientRect();
+      menu.style.left = Math.max(8, Math.min(x, window.innerWidth - rect.width - 8)) + 'px';
+      menu.style.top = Math.max(8, Math.min(y, window.innerHeight - rect.height - 8)) + 'px';
     }
 
     function handleTileContext(e, idx) {
       e.preventDefault();
-      ctxTargetIdx = idx;
-      var menu = document.getElementById('context-menu');
-      menu.style.left = e.clientX + 'px';
-      menu.style.top = e.clientY + 'px';
-      menu.classList.add('visible');
+      var x = e.clientX, y = e.clientY;
+      if (!x && !y) {
+        // Opened from the keyboard: anchor the menu to the tile.
+        var rect = e.currentTarget.getBoundingClientRect();
+        x = rect.left + 20;
+        y = rect.top + rect.height / 2;
+      }
+      showContextMenu(idx, x, y);
+      if (!e.clientX && !e.clientY) document.getElementById('ctx-select').focus();
     }
 
+    var longPressFired = false;
+
     function handleTouchStart(e, idx) {
+      cancelLongPress();
+      longPressFired = false;
       var touchX = e.touches[0].clientX;
       var touchY = e.touches[0].clientY;
       longPressTimer = setTimeout(function() {
         longPressTimer = null;
-        ctxTargetIdx = idx;
-        var menu = document.getElementById('context-menu');
-        menu.style.left = touchX + 'px';
-        menu.style.top = touchY + 'px';
-        menu.classList.add('visible');
+        longPressFired = true;
+        showContextMenu(idx, touchX, touchY);
       }, 500);
     }
 
     function handleTouchEnd(e) {
+      cancelLongPress();
+      // After a long press, stop the browser from also firing a click, which
+      // would close the menu and open the result.
+      if (longPressFired) {
+        e.preventDefault();
+        longPressFired = false;
+      }
+    }
+
+    function cancelLongPress() {
       if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
     }
 
@@ -1207,14 +1300,15 @@
     }
 
     function ctxDelete() {
-      if (ctxTargetIdx !== null) {
-        resultHistory.splice(ctxTargetIdx, 1);
-        saveHistory();
-        selectedTiles.clear();
-        if (resultHistory.length === 0) { backToAssessmentHome(); hideContextMenu(); return; }
-        renderHistoryTiles();
-      }
+      var idx = ctxTargetIdx;
       hideContextMenu();
+      if (idx === null) return;
+      if (!confirm('Delete attempt #' + (resultHistory.length - idx) + '? This can\u2019t be undone.')) return;
+      resultHistory.splice(idx, 1);
+      saveHistory();
+      selectedTiles.clear();
+      if (resultHistory.length === 0) { backToAssessmentHome(); return; }
+      renderHistoryTiles();
     }
 
     function hideContextMenu() {
@@ -1226,7 +1320,18 @@
       if (!e.target.closest('.context-menu')) hideContextMenu();
     });
 
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && document.getElementById('context-menu').classList.contains('visible')) {
+        var idx = ctxTargetIdx;
+        hideContextMenu();
+        var tile = document.querySelector('.history-tile[data-index="' + idx + '"]');
+        if (tile) tile.focus();
+      }
+    });
+
     function deleteSelectedResults() {
+      var count = selectedTiles.size;
+      if (!confirm('Delete ' + count + ' selected result' + (count === 1 ? '' : 's') + '? This can\u2019t be undone.')) return;
       var indices = Array.from(selectedTiles).sort(function(a, b) { return b - a; });
       indices.forEach(function(i) { resultHistory.splice(i, 1); });
       saveHistory();
@@ -1236,6 +1341,8 @@
     }
 
     function deleteAllResults() {
+      if (resultHistory.length === 0) return;
+      if (!confirm('Delete all ' + resultHistory.length + ' past results? This can\u2019t be undone.')) return;
       resultHistory = [];
       saveHistory();
       selectedTiles.clear();
@@ -1315,8 +1422,10 @@
     });
 
     // Register service worker for PWA
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js');
+    if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+      navigator.serviceWorker.register('./sw.js').catch(function() {
+        console.log("Service worker registration failed.");
+      });
     }
   </script>
 </body>
