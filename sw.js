@@ -1,4 +1,4 @@
-const CACHE_NAME = 'comm-styles-v16';
+const CACHE_NAME = 'comm-styles-v17';
 const ASSETS = [
   './',
   './index.html',
@@ -23,31 +23,36 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+// Network first, falling back to the cache when offline. Only our own GET requests are handled:
+// anything else (POSTs, other origins, browser-extension urls) goes to the network untouched,
+// since the cache would reject it. Only successful responses are cached, so a 404 or 500 can
+// never replace the good copy the app relies on offline.
 self.addEventListener('fetch', (event) => {
   const request = event.request;
-  // Only handle our own GET requests; let the browser deal with everything else.
-  if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
+  if (request.method !== 'GET') return;
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
 
-  event.respondWith(
-    fetch(request)
-      .then((response) => {
-        // Only cache good responses so a 404/500 never replaces the offline copy.
-        if (response.ok) {
-          const clone = response.clone();
-          event.waitUntil(
-            caches.open(CACHE_NAME)
-              .then((cache) => cache.put(request, clone))
-              .catch(() => {})
-          );
-        }
-        return response;
-      })
-      .catch(() =>
-        caches.match(request).then((cached) => {
-          if (cached) return cached;
-          if (request.mode === 'navigate') return caches.match('./index.html');
-          return Response.error();
-        })
-      )
-  );
+  event.respondWith((async () => {
+    try {
+      const response = await fetch(request);
+      if (response.ok && response.type === 'basic') {
+        const copy = response.clone();
+        event.waitUntil(
+          caches.open(CACHE_NAME)
+            .then((cache) => cache.put(request, copy))
+            .catch(() => {}) // a failed cache write (e.g. storage full) must not break the page
+        );
+      }
+      return response;
+    } catch (err) {
+      const cached = await caches.match(request);
+      if (cached) return cached;
+      if (request.mode === 'navigate') {
+        const shell = await caches.match('./index.html');
+        if (shell) return shell;
+      }
+      return Response.error();
+    }
+  })());
 });
