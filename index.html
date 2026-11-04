@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <!-- No remote scripts, styles or connections: everything the app needs ships with it. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Communication Styles</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#6366f1">
@@ -23,6 +25,32 @@
 
     .screen { display: none; flex: 1; flex-direction: column; }
     .screen.active { display: flex; }
+
+    /* Buttons: no double-tap zoom delay (pinch-zoom still works), no Android tap square. */
+    button {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Keyboard focus ring. :focus-visible never matches a tap or click, so touch users
+       don't get a box drawn around what they pressed. */
+    button:focus-visible {
+      outline: 3px solid #a5b4fc;
+      outline-offset: 2px;
+    }
+    /* Headings receive focus on screen change so screen readers announce the new screen;
+       they are not interactive, so no ring. */
+    [data-screen-focus]:focus { outline: none; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
 
     /* Home Screen */
     .home-screen {
@@ -78,6 +106,11 @@
       margin-bottom: 20px;
     }
     .hub-card {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font: inherit;
+      color: inherit;
       background-color: #1e293b;
       border: 1px solid #334155;
       border-radius: 16px;
@@ -87,6 +120,7 @@
       position: relative;
       overflow: hidden;
     }
+    .hub-card-icon, .hub-card-title, .hub-card-desc { display: block; }
     .hub-card:hover {
       border-color: #6366f1;
       transform: translateY(-2px);
@@ -198,17 +232,16 @@
       justify-content: center;
       background-color: #0f172a;
       color: #f8fafc;
+      font-family: inherit;
       font-weight: bold;
       font-size: 18px;
+      line-height: 1;
+      padding: 0;
       cursor: pointer;
       transition: all 0.15s;
       -webkit-tap-highlight-color: transparent;
-      outline: none;
       user-select: none;
       -webkit-user-select: none;
-    }
-    .circle:focus {
-      outline: none;
     }
     .circle:active {
       background-color: #6366f1;
@@ -398,14 +431,34 @@
     }
     .history-tile {
       background-color: #1e293b;
-      padding: 16px 16px 16px 44px;
       border-radius: 12px;
       border: 1px solid #334155;
-      cursor: pointer;
       transition: all 0.15s;
       position: relative;
       user-select: none;
       -webkit-user-select: none;
+    }
+    /* The tile's content is one button (open / toggle selection); the checkbox is a
+       sibling button, never nested inside it. */
+    .tile-main {
+      display: block;
+      width: 100%;
+      padding: 16px 16px 16px 44px;
+      background: none;
+      border: none;
+      border-radius: 12px;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      -webkit-touch-callout: none;
+    }
+    .tile-primary, .tile-overall { display: block; }
+    .tile-overall {
+      color: #a78bfa;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
     }
     .history-tile:hover { border-color: #6366f1; }
     .history-tile.tile-selected {
@@ -451,11 +504,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 0;
+      font: inherit;
       opacity: 0.5;
       transition: opacity 0.15s;
       cursor: pointer;
       z-index: 2;
     }
+    .tile-checkbox:focus-visible { opacity: 1; }
     .tile-checkbox:hover {
       opacity: 1;
       border-color: #6366f1;
@@ -499,6 +555,12 @@
     }
     .context-menu.visible { display: block; }
     .context-menu-item {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      font: inherit;
       padding: 10px 18px;
       color: #f8fafc;
       font-size: 14px;
@@ -506,6 +568,7 @@
       transition: background-color 0.1s;
     }
     .context-menu-item:hover { background-color: #334155; }
+    .context-menu-item:focus-visible { outline-offset: -3px; }
     .context-menu-item.danger { color: #f87171; }
     .context-menu-item.danger:hover { background-color: #3b1a1a; }
 
@@ -529,51 +592,83 @@
     .back-toast.visible {
       opacity: 1;
     }
+
+    /* Undo toast: shown after a delete or a discarded assessment. */
+    .undo-toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: calc(100vw - 32px);
+      background-color: #334155;
+      color: #f8fafc;
+      padding: 8px 8px 8px 20px;
+      border-radius: 24px;
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 2000;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .undo-toast[hidden] { display: none; }
+    .undo-btn {
+      background: none;
+      border: none;
+      color: #a5b4fc;
+      font: inherit;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 16px;
+      cursor: pointer;
+    }
+    .undo-btn:hover { background-color: rgba(255,255,255,0.08); }
   </style>
 </head>
 <body>
 
   <!-- Home Screen -->
   <div id="home-screen" class="screen home-screen active">
-    <h1 class="title" style="margin-top:40px;">Communication Styles</h1>
+    <h1 class="title" style="margin-top:40px;" tabindex="-1" data-screen-focus>Communication Styles</h1>
     <p class="subtitle">Explore how you communicate, collaborate, and navigate relationships.</p>
     <div class="hub-cards">
-      <div class="hub-card" onclick="openAssessment('conflict')">
-        <div class="hub-card-icon">&#9878;</div>
-        <div class="hub-card-title">Conflict Style Assessment</div>
-        <div class="hub-card-desc">Discover how you naturally handle disagreements — avoiding, dominating, compromising, obliging, or integrating.</div>
+      <button type="button" class="hub-card" onclick="openAssessment('conflict')">
+        <span class="hub-card-icon" aria-hidden="true">&#9878;</span>
+        <span class="hub-card-title">Conflict Style Assessment</span>
+        <span class="hub-card-desc">Discover how you naturally handle disagreements — avoiding, dominating, compromising, obliging, or integrating.</span>
         <span class="hub-card-badge badge-available">25 Questions</span>
-      </div>
-      <div class="hub-card" onclick="openAssessment('listening')">
-        <div class="hub-card-icon">&#128483;</div>
-        <div class="hub-card-title">Listening Style Profile</div>
-        <div class="hub-card-desc">Understand whether you listen to connect, analyze, act, or manage time — and how it shapes your conversations.</div>
+      </button>
+      <button type="button" class="hub-card" onclick="openAssessment('listening')">
+        <span class="hub-card-icon" aria-hidden="true">&#128483;</span>
+        <span class="hub-card-title">Listening Style Profile</span>
+        <span class="hub-card-desc">Understand whether you listen to connect, analyze, act, or manage time — and how it shapes your conversations.</span>
         <span class="hub-card-badge badge-available">20 Questions</span>
-      </div>
-      <div class="hub-card" onclick="openAssessment('feedback')">
-        <div class="hub-card-icon">&#129309;</div>
-        <div class="hub-card-title">Feedback Style Inventory</div>
-        <div class="hub-card-desc">Learn how you give and receive feedback — direct, supportive, analytical, or reflective.</div>
+      </button>
+      <button type="button" class="hub-card" onclick="openAssessment('feedback')">
+        <span class="hub-card-icon" aria-hidden="true">&#129309;</span>
+        <span class="hub-card-title">Feedback Style Inventory</span>
+        <span class="hub-card-desc">Learn how you give and receive feedback — direct, supportive, analytical, or reflective.</span>
         <span class="hub-card-badge badge-available">20 Questions</span>
-      </div>
-      <div class="hub-card" onclick="openAssessment('communication')">
-        <div class="hub-card-icon">&#128172;</div>
-        <div class="hub-card-title">Communication Style</div>
-        <div class="hub-card-desc">Discover your natural communication approach — driving, expressing, supporting, or analyzing.</div>
+      </button>
+      <button type="button" class="hub-card" onclick="openAssessment('communication')">
+        <span class="hub-card-icon" aria-hidden="true">&#128172;</span>
+        <span class="hub-card-title">Communication Style</span>
+        <span class="hub-card-desc">Discover your natural communication approach — driving, expressing, supporting, or analyzing.</span>
         <span class="hub-card-badge badge-available">20 Questions</span>
-      </div>
-      <div class="hub-card" onclick="openAssessment('ei')">
-        <div class="hub-card-icon">&#129504;</div>
-        <div class="hub-card-title">Emotional Intelligence</div>
-        <div class="hub-card-desc">Measure your ability to perceive, manage, and harness emotions — in yourself and others.</div>
+      </button>
+      <button type="button" class="hub-card" onclick="openAssessment('ei')">
+        <span class="hub-card-icon" aria-hidden="true">&#129504;</span>
+        <span class="hub-card-title">Emotional Intelligence</span>
+        <span class="hub-card-desc">Measure your ability to perceive, manage, and harness emotions — in yourself and others.</span>
         <span class="hub-card-badge badge-available">20 Questions</span>
-      </div>
+      </button>
     </div>
   </div>
 
   <!-- Assessment Landing -->
   <div id="assessment-home-screen" class="screen home-screen">
-    <h1 class="title" id="assessment-title" style="margin-top:40px;"></h1>
+    <h1 class="title" id="assessment-title" style="margin-top:40px;" tabindex="-1" data-screen-focus></h1>
     <p class="subtitle" id="assessment-subtitle"></p>
     <button class="btn btn-primary" onclick="startQuiz()">Start New Assessment</button>
     <button class="btn btn-secondary" id="view-past-btn" style="display:none;" onclick="viewPastResults()">View Past Results</button>
@@ -594,28 +689,28 @@
       <div class="progress-text" id="progress-text"></div>
       <button class="nav-btn next" id="next-btn" onclick="goNext()" style="display:none;">Next &#8594;</button>
     </div>
-    <div class="question-card">
-      <div class="question" id="question-text"></div>
+    <div class="question-card" aria-live="polite">
+      <div class="question" id="question-text" tabindex="-1" data-screen-focus></div>
     </div>
-    <div class="options-container">
-      <div class="circle" id="circle-1" onclick="handleSelect(1)">1</div>
-      <div class="circle" id="circle-2" onclick="handleSelect(2)">2</div>
-      <div class="circle" id="circle-3" onclick="handleSelect(3)">3</div>
-      <div class="circle" id="circle-4" onclick="handleSelect(4)">4</div>
-      <div class="circle" id="circle-5" onclick="handleSelect(5)">5</div>
+    <div class="options-container" role="group" aria-label="Your answer, from 1 (never) to 5 (always)">
+      <button type="button" class="circle" id="circle-1" aria-label="1, Never" aria-pressed="false" onclick="handleSelect(1)">1</button>
+      <button type="button" class="circle" id="circle-2" aria-label="2, Seldom" aria-pressed="false" onclick="handleSelect(2)">2</button>
+      <button type="button" class="circle" id="circle-3" aria-label="3, Sometimes" aria-pressed="false" onclick="handleSelect(3)">3</button>
+      <button type="button" class="circle" id="circle-4" aria-label="4, Often" aria-pressed="false" onclick="handleSelect(4)">4</button>
+      <button type="button" class="circle" id="circle-5" aria-label="5, Always" aria-pressed="false" onclick="handleSelect(5)">5</button>
     </div>
   </div>
 
   <!-- Results Screen -->
   <div id="results-screen" class="screen results-screen">
-    <h1 class="title">Assessment Results</h1>
+    <h1 class="title" tabindex="-1" data-screen-focus>Assessment Results</h1>
     <div id="results-content"></div>
     <button class="btn btn-outline" id="results-back-btn" onclick="resultsGoBack()" style="max-width:500px;">Return to Home</button>
   </div>
 
   <!-- History Screen -->
   <div id="history-screen" class="screen history-screen">
-    <h1 class="title">Past Results</h1>
+    <h1 class="title" tabindex="-1" data-screen-focus>Past Results</h1>
     <div class="history-toolbar" id="history-toolbar">
       <button class="toolbar-btn btn-danger-outline" id="delete-selected-btn" style="display:none;" onclick="deleteSelectedResults()">Delete Selected</button>
       <button class="toolbar-btn btn-danger" onclick="deleteAllResults()">Delete All</button>
@@ -623,11 +718,17 @@
     <div class="history-tiles" id="history-tiles"></div>
     <button class="btn btn-outline" onclick="backToAssessmentHome()" style="max-width:500px;">Return to Home</button>
   </div>
-  <div class="context-menu" id="context-menu">
-    <div class="context-menu-item" id="ctx-select" onclick="ctxSelect()">Select</div>
-    <div class="context-menu-item danger" id="ctx-delete" onclick="ctxDelete()">Delete</div>
+  <div class="context-menu" id="context-menu" role="menu" aria-label="Result actions">
+    <button type="button" class="context-menu-item" id="ctx-select" role="menuitem" tabindex="-1" onclick="ctxSelect()">Select</button>
+    <button type="button" class="context-menu-item danger" id="ctx-delete" role="menuitem" tabindex="-1" onclick="ctxDelete()">Delete</button>
   </div>
-  <div class="back-toast" id="back-toast">Press back again to exit</div>
+  <div class="back-toast" id="back-toast" aria-hidden="true">Press back again to exit</div>
+  <div class="undo-toast" id="undo-toast" hidden>
+    <span id="undo-message"></span>
+    <button type="button" class="undo-btn" id="undo-btn" onclick="runUndo()">Undo</button>
+  </div>
+  <!-- Announcements for screen readers (toasts, deletes, restores). -->
+  <div class="sr-only" id="sr-status" role="status" aria-live="polite"></div>
 
   <script>
     // ===== Assessment Configurations =====
@@ -840,38 +941,97 @@
     let maxAnswered = -1;
     let resultHistory = [];
     let selectedTiles = new Set();
-    let ctxTargetIdx = null;
-    let longPressTimer = null;
     let cameFromHistory = false;
+    let viewingAssessmentKey = null;
 
     function getConfig() { return assessments[currentAssessment]; }
 
-    function showScreen(name) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(name + '-screen').classList.add('active');
+    function getActiveScreen() {
+      var el = document.querySelector('.screen.active');
+      return el ? el.id.replace('-screen', '') : 'home';
     }
 
+    // Screen changes never touch browser history (see "Back button" below). They move focus to
+    // the new screen's heading so keyboard and screen-reader users land at the top of it.
+    function showScreen(name) {
+      cancelPendingExit();
+      document.querySelectorAll('.screen').forEach(function (s) { s.classList.remove('active'); });
+      var screen = document.getElementById(name + '-screen');
+      screen.classList.add('active');
+      var focusTarget = screen.querySelector('[data-screen-focus]');
+      if (focusTarget) focusTarget.focus();
+    }
+
+    // Everything that goes into innerHTML from saved data is escaped: stored results are
+    // user-modifiable, and markup built from them must not be able to run script.
+    function esc(value) {
+      return String(value).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    function announce(message) {
+      var region = document.getElementById('sr-status');
+      region.textContent = '';
+      setTimeout(function () { region.textContent = message; }, 50);
+    }
+
+    // Whether the most recent input was the keyboard. Focus is only restored after a re-render
+    // for keyboard users; moving it for a mouse or touch user could scroll the page under them.
+    var lastInputWasKeyboard = false;
+    document.addEventListener('keydown', function () { lastInputWasKeyboard = true; }, true);
+    document.addEventListener('pointerdown', function () { lastInputWasKeyboard = false; }, true);
+
+    // ===== Scoring =====
+    // Which style a question counts toward. finishQuiz and the per-style maximums both use this,
+    // so the "x / max" shown on the results can never disagree with how the score was added up.
+    function styleIndexForQuestion(config, i) {
+      if (config.customScoring === 'ei') {
+        // EI questions come in consecutive blocks, one block per area.
+        return Math.floor(i / (config.questions.length / config.styles.length));
+      }
+      return i % config.styles.length;
+    }
+
+    function maxScoresByStyle(config) {
+      var max = {};
+      config.styles.forEach(function (s) { max[s] = 0; });
+      config.questions.forEach(function (_, i) { max[config.styles[styleIndexForQuestion(config, i)]] += 5; });
+      return max;
+    }
+
+    function maxOverallScore(config) { return config.questions.length * 5; }
+
     // ===== Storage =====
-    function loadHistory() {
-      const config = getConfig();
-      resultHistory = [];
+    function isValidResult(r) {
+      return !!r && typeof r === 'object' && !!r.scores && typeof r.scores === 'object' && Array.isArray(r.primaries);
+    }
+
+    // A saved value that isn't a list (or has malformed entries) is treated as no history rather
+    // than crashing the assessment.
+    function readStoredResults(key) {
       try {
-        const saved = localStorage.getItem(config.storageKey);
-        if (saved) resultHistory = JSON.parse(saved);
-        // Migrate old conflict single-result format
-        if (currentAssessment === 'conflict') {
-          const oldSaved = localStorage.getItem('conflict_scores');
-          if (oldSaved) {
-            const old = JSON.parse(oldSaved);
-            if (old && old.scores) {
-              if (!old.id) old.id = Date.now();
-              resultHistory.unshift(old);
-              localStorage.setItem(config.storageKey, JSON.stringify(resultHistory));
-              localStorage.removeItem('conflict_scores');
-            }
+        var parsed = JSON.parse(localStorage.getItem(key) || '[]');
+        return Array.isArray(parsed) ? parsed.filter(isValidResult) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function loadHistory() {
+      var config = getConfig();
+      resultHistory = readStoredResults(config.storageKey);
+      // Migrate the old single-result conflict format.
+      if (currentAssessment === 'conflict') {
+        try {
+          var old = JSON.parse(localStorage.getItem('conflict_scores') || 'null');
+          if (isValidResult(old)) {
+            resultHistory.unshift(old);
+            saveHistory();
+            localStorage.removeItem('conflict_scores');
           }
-        }
-      } catch (e) { console.log("Failed to load data."); }
+        } catch (e) { /* unreadable old record: leave it where it is */ }
+      }
       updateHomeBtn();
     }
 
@@ -882,9 +1042,16 @@
     }
 
     function addResult(result) {
-      result.id = Date.now();
       resultHistory.unshift(result);
       saveHistory();
+    }
+
+    // Results store when they were taken as a timestamp and format it only for display, so the
+    // date follows the device's current language. Older results saved the display text itself;
+    // that is shown as it was stored.
+    function formatResultDate(r) {
+      if (typeof r.timestamp === 'number' && isFinite(r.timestamp)) return new Date(r.timestamp).toLocaleDateString();
+      return typeof r.date === 'string' ? r.date : '';
     }
 
     function updateHomeBtn() {
@@ -897,8 +1064,56 @@
       }
     }
 
+    // ===== Undo =====
+    // Deleting results and discarding an assessment in progress both happen immediately, with an
+    // Undo toast. The toast stays while it is hovered or focused, and Ctrl+Z also undoes.
+    var UNDO_MS = 8000;
+    var pendingUndo = null; // { restore, timer }
+
+    function offerUndo(message, restore) {
+      dismissUndo();
+      pendingUndo = { restore: restore, timer: null };
+      document.getElementById('undo-message').textContent = message;
+      document.getElementById('undo-toast').hidden = false;
+      announce(message + '. Undo is available.');
+      startUndoTimer();
+    }
+
+    function startUndoTimer() {
+      if (!pendingUndo) return;
+      clearTimeout(pendingUndo.timer);
+      pendingUndo.timer = setTimeout(dismissUndo, UNDO_MS);
+    }
+
+    function pauseUndoTimer() {
+      if (pendingUndo) clearTimeout(pendingUndo.timer);
+    }
+
+    function dismissUndo() {
+      if (!pendingUndo) return;
+      clearTimeout(pendingUndo.timer);
+      pendingUndo = null;
+      document.getElementById('undo-toast').hidden = true;
+    }
+
+    function runUndo() {
+      if (!pendingUndo) return;
+      var restore = pendingUndo.restore;
+      dismissUndo();
+      restore();
+    }
+
+    (function () {
+      var toast = document.getElementById('undo-toast');
+      toast.addEventListener('mouseenter', pauseUndoTimer);
+      toast.addEventListener('mouseleave', startUndoTimer);
+      toast.addEventListener('focusin', pauseUndoTimer);
+      toast.addEventListener('focusout', startUndoTimer);
+    })();
+
     // ===== Assessment Landing =====
     function openAssessment(key) {
+      dismissUndo();
       currentAssessment = key;
       const config = getConfig();
       document.getElementById('assessment-title').textContent = config.title;
@@ -914,6 +1129,7 @@
 
     // ===== Quiz =====
     function startQuiz() {
+      dismissUndo();
       const config = getConfig();
       currentIdx = 0;
       answers = new Array(config.questions.length).fill(null);
@@ -933,8 +1149,9 @@
       document.getElementById('next-btn').style.display = canGoNext ? 'block' : 'none';
       for (var i = 1; i <= 5; i++) {
         var el = document.getElementById('circle-' + i);
-        if (answers[currentIdx] === i) el.classList.add('selected');
-        else el.classList.remove('selected');
+        var on = answers[currentIdx] === i;
+        el.classList.toggle('selected', on);
+        el.setAttribute('aria-pressed', on ? 'true' : 'false');
       }
     }
 
@@ -962,12 +1179,31 @@
       }
     }
 
+    // Leaves the quiz straight away (Cancel, Escape, or the back button). If any question was
+    // answered, the answers are kept aside and the toast offers to resume where the user left off.
     function cancelQuiz() {
+      var answered = answers.some(function (a) { return a !== null; });
+      var saved = answered
+        ? { key: currentAssessment, idx: currentIdx, answers: answers.slice(), maxAnswered: maxAnswered }
+        : null;
       currentIdx = 0;
       answers = [];
       maxAnswered = -1;
       loadHistory();
       showScreen('assessment-home');
+      if (saved) {
+        offerUndo('Assessment discarded', function () { resumeQuiz(saved); });
+      }
+    }
+
+    function resumeQuiz(saved) {
+      currentAssessment = saved.key;
+      currentIdx = saved.idx;
+      answers = saved.answers;
+      maxAnswered = saved.maxAnswered;
+      updateQuizUI();
+      showScreen('quiz');
+      announce('Assessment restored at question ' + (currentIdx + 1) + '.');
     }
 
     function finishQuiz() {
@@ -975,28 +1211,19 @@
       var scores = {};
       config.styles.forEach(function(s) { scores[s] = 0; });
 
-      if (config.customScoring === 'ei') {
-        // EI: reverse-score specific items, then map Q1-5 to style 0, Q6-10 to style 1, etc.
-        var reverseSet = {};
-        config.reverseItems.forEach(function(idx) { reverseSet[idx] = true; });
-        answers.forEach(function(val, i) {
-          if (val === null) return;
-          var scored = reverseSet[i] ? (6 - val) : val;
-          var styleIdx = Math.floor(i / 5);
-          scores[config.styles[styleIdx]] += scored;
-        });
-      } else {
-        var numStyles = config.styles.length;
-        answers.forEach(function(val, i) {
-          if (val === null) return;
-          scores[config.styles[i % numStyles]] += val;
-        });
-      }
+      // EI reverse-scores some items; the other assessments have none.
+      var reverseSet = {};
+      (config.reverseItems || []).forEach(function(idx) { reverseSet[idx] = true; });
+      answers.forEach(function(val, i) {
+        if (val === null) return;
+        var scored = reverseSet[i] ? (6 - val) : val;
+        scores[config.styles[styleIndexForQuestion(config, i)]] += scored;
+      });
 
       var maxScore = Math.max.apply(null, Object.values(scores));
       var primaries = Object.keys(scores).filter(function(k) { return scores[k] === maxScore; });
       var secondaries = Object.keys(scores).filter(function(k) { return scores[k] >= maxScore - 3 && scores[k] < maxScore; });
-      var result = { scores: scores, primaries: primaries, secondaries: secondaries, date: new Date().toLocaleDateString(), assessment: currentAssessment };
+      var result = { scores: scores, primaries: primaries, secondaries: secondaries, timestamp: Date.now(), assessment: currentAssessment };
 
       // Store overall total for EI
       if (config.customScoring === 'ei') {
@@ -1011,49 +1238,54 @@
     }
 
     // ===== Results =====
+    function describe(config, style) {
+      return esc(config.descriptions[style] || '');
+    }
+
     function showResults(result) {
       var assessmentKey = result.assessment || currentAssessment;
       viewingAssessmentKey = assessmentKey;
       var config = assessments[assessmentKey];
       var scores = result.scores;
       var primaries = result.primaries;
-      var secondaries = result.secondaries;
+      var secondaries = Array.isArray(result.secondaries) ? result.secondaries : [];
+      var maxByStyle = maxScoresByStyle(config);
+      var fallbackMax = (config.questions.length / config.styles.length) * 5;
       var html = '';
-      var maxPerStyle = 25;
 
       // EI: Overall score band at the top
-      if (config.customScoring === 'ei' && result.overallScore !== undefined) {
+      if (config.customScoring === 'ei' && typeof result.overallScore === 'number') {
         var total = result.overallScore;
         var band = null;
         config.overallBands.forEach(function(b) { if (total >= b.min && total <= b.max) band = b; });
         html += '<div class="primary-card" style="border-color:#a78bfa;">';
-        html += '<div class="primary-title">' + (band ? band.label : 'EI Score') + ': ' + total + ' / 100</div>';
+        html += '<div class="primary-title">' + (band ? band.label : 'EI Score') + ': ' + total + ' / ' + maxOverallScore(config) + '</div>';
         html += '<div class="primary-desc">' + (band ? band.desc : '') + '</div>';
         html += '</div>';
       }
 
       // Strongest category card
       html += '<div class="primary-card">';
-      html += '<div class="primary-title">' + (config.customScoring === 'ei' ? 'Strongest Area' : 'Primary Style') + (primaries.length > 1 ? 's' : '') + ': ' + primaries.join(' & ') + '</div>';
+      html += '<div class="primary-title">' + (config.customScoring === 'ei' ? 'Strongest Area' : 'Primary Style') + (primaries.length > 1 ? 's' : '') + ': ' + esc(primaries.join(' & ')) + '</div>';
       if (primaries.length > 1) {
-        html += '<div class="primary-desc">' + (config.customScoring === 'ei' ? 'You scored equally in multiple areas, showing well-rounded emotional skills.' : 'You tied for multiple dominant styles. This indicates high adaptability \u2014 you likely shift your approach depending on the situation, the stakes involved, or your energy at the moment.') + '</div>';
+        html += '<div class="primary-desc">' + (config.customScoring === 'ei' ? 'You scored equally in multiple areas, showing well-rounded emotional skills.' : 'You tied for multiple dominant styles. This indicates high adaptability — you likely shift your approach depending on the situation, the stakes involved, or your energy at the moment.') + '</div>';
         primaries.forEach(function(p) {
-          html += '<div class="bullet-item">&bull; ' + p + ': ' + config.descriptions[p] + '</div>';
+          html += '<div class="bullet-item">&bull; ' + esc(p) + ': ' + describe(config, p) + '</div>';
         });
       } else {
-        html += '<div class="primary-desc">' + config.descriptions[primaries[0]] + '</div>';
+        html += '<div class="primary-desc">' + describe(config, primaries[0]) + '</div>';
       }
       primaries.forEach(function(p) {
-        html += '<button class="link-button" onclick="openLearnMore(\'' + p.replace(/'/g, "\\'") + '\')">Learn about ' + p + ' &rarr;</button>';
+        html += '<button type="button" class="link-button" data-learn-more="' + esc(p) + '">Learn about ' + esc(p) + ' &rarr;</button>';
       });
       html += '</div>';
 
       if (secondaries.length > 0) {
         html += '<div class="secondary-card">';
-        html += '<div class="secondary-title">' + (config.customScoring === 'ei' ? 'Close Behind: ' : 'Close Fallbacks: ') + secondaries.join(', ') + '</div>';
+        html += '<div class="secondary-title">' + (config.customScoring === 'ei' ? 'Close Behind: ' : 'Close Fallbacks: ') + esc(secondaries.join(', ')) + '</div>';
         html += '<div class="secondary-desc">' + (config.customScoring === 'ei' ? 'These areas scored within 3 points of your strongest. Small, focused effort here can round out your emotional intelligence significantly.' : 'Scoring within 3 points of your dominant style means these are strong secondary strategies. You likely pivot to these naturally when your primary approach hits a wall.') + '</div>';
         secondaries.forEach(function(s) {
-          html += '<div class="bullet-item-secondary">&bull; ' + s + ': ' + config.descriptions[s] + '</div>';
+          html += '<div class="bullet-item-secondary">&bull; ' + esc(s) + ': ' + describe(config, s) + '</div>';
         });
         html += '</div>';
       }
@@ -1065,9 +1297,9 @@
         if (maxScore - minScore >= 4) {
           var weakest = Object.keys(scores).filter(function(k) { return scores[k] === minScore; });
           html += '<div class="secondary-card" style="border-color:#f87171;">';
-          html += '<div class="secondary-title" style="color:#f87171;">Area for Growth: ' + weakest.join(', ') + '</div>';
+          html += '<div class="secondary-title" style="color:#f87171;">Area for Growth: ' + esc(weakest.join(', ')) + '</div>';
           weakest.forEach(function(w) {
-            html += '<div class="bullet-item-secondary">&bull; ' + config.descriptions[w] + '</div>';
+            html += '<div class="bullet-item-secondary">&bull; ' + describe(config, w) + '</div>';
           });
           html += '</div>';
         }
@@ -1075,7 +1307,8 @@
 
       html += '<div class="score-board">';
       Object.keys(scores).forEach(function(key) {
-        html += '<div class="score-row"><span class="score-label">' + key + '</span><span class="score-value">' + scores[key] + ' / ' + maxPerStyle + '</span></div>';
+        var max = maxByStyle[key] !== undefined ? maxByStyle[key] : fallbackMax;
+        html += '<div class="score-row"><span class="score-label">' + esc(key) + '</span><span class="score-value">' + esc(scores[key]) + ' / ' + max + '</span></div>';
       });
       html += '</div>';
       html += '<div style="color:#64748b; font-size:12px; text-align:center; margin-bottom:20px; padding:0 20px; line-height:18px;">' + config.reference + '</div>';
@@ -1084,6 +1317,13 @@
       document.getElementById('results-back-btn').textContent = cameFromHistory ? 'Back to Past Results' : 'Return to Home';
       showScreen('results');
     }
+
+    // "Learn about …" buttons carry their style in a data attribute; one delegated listener
+    // handles them all, so no saved value is ever spliced into inline script.
+    document.getElementById('results-content').addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-learn-more]');
+      if (btn) openLearnMore(btn.getAttribute('data-learn-more'));
+    });
 
     function resultsGoBack() {
       if (cameFromHistory) {
@@ -1094,15 +1334,12 @@
       }
     }
 
-    var viewingAssessmentKey = null;
-
     function openLearnMore(style) {
-      var key = viewingAssessmentKey || currentAssessment;
-      var config = assessments[key];
+      var config = assessments[viewingAssessmentKey || currentAssessment];
       var query = config.searchPrefix.replace('{style}', encodeURIComponent(style));
       var url = 'https://www.google.com/search?q=' + query;
-      if (window.electronAPI) {
-        window.electronAPI.openExternal(url);
+      if (window.desktop && typeof window.desktop.openExternal === 'function') {
+        window.desktop.openExternal(url); // desktop app: opens in the user's browser, via preload.js
       } else {
         window.open(url, '_blank', 'noopener');
       }
@@ -1115,106 +1352,110 @@
       showScreen('history');
     }
 
-    function renderHistoryTiles() {
+    // focus: { index, part: 'main' | 'checkbox' } — which control to focus after re-rendering,
+    // since the old one was just replaced. Only honoured for keyboard users.
+    function renderHistoryTiles(focus) {
       var container = document.getElementById('history-tiles');
       var delSelBtn = document.getElementById('delete-selected-btn');
       delSelBtn.style.display = selectedTiles.size > 0 ? 'inline-block' : 'none';
 
       if (resultHistory.length === 0) {
+        container.className = 'history-tiles';
         container.innerHTML = '<div class="history-empty">No past results yet.</div>';
         return;
       }
 
+      var config = getConfig();
       container.className = 'history-tiles' + (selectedTiles.size > 0 ? ' select-mode' : '');
       var html = '';
       resultHistory.forEach(function(r, i) {
         var isSelected = selectedTiles.has(i);
-        html += '<div class="history-tile' + (isSelected ? ' tile-selected' : '') + '" data-index="' + i + '"';
+        var attempt = resultHistory.length - i;
+        html += '<div class="history-tile' + (isSelected ? ' tile-selected' : '') + '">';
+        html += '<button type="button" class="tile-checkbox' + (isSelected ? ' checked' : '') + '" role="checkbox" aria-checked="' + isSelected + '"';
+        html += ' aria-label="Select attempt #' + attempt + '" data-index="' + i + '" onclick="toggleTileSelect(event, ' + i + ')"></button>';
+        html += '<button type="button" class="tile-main" data-index="' + i + '"';
         html += ' onclick="handleTileClick(event, ' + i + ')"';
         html += ' oncontextmenu="handleTileContext(event, ' + i + ')"';
         html += ' ontouchstart="handleTouchStart(event, ' + i + ')"';
         html += ' ontouchend="handleTouchEnd(event)"';
-        html += ' ontouchmove="handleTouchEnd(event)">';
-        html += '<div class="tile-checkbox' + (isSelected ? ' checked' : '') + '" onclick="toggleTileSelect(event, ' + i + ')"></div>';
-        html += '<div class="tile-header">';
-        html += '<span class="tile-attempt">Attempt #' + (resultHistory.length - i) + '</span>';
-        html += '<span class="tile-date">' + r.date + '</span>';
-        html += '</div>';
-        html += '<div class="tile-primary">' + r.primaries.join(' & ') + '</div>';
-        if (r.overallScore !== undefined) {
-          html += '<div style="color:#a78bfa; font-size:14px; font-weight:600; margin-bottom:6px;">Overall: ' + r.overallScore + ' / 100</div>';
+        html += ' ontouchmove="cancelLongPress()"';
+        html += ' ontouchcancel="cancelLongPress()">';
+        html += '<span class="tile-header">';
+        html += '<span class="tile-attempt">Attempt #' + attempt + '</span>';
+        html += '<span class="tile-date">' + esc(formatResultDate(r)) + '</span>';
+        html += '</span>';
+        html += '<span class="tile-primary">' + esc(r.primaries.join(' & ')) + '</span>';
+        if (typeof r.overallScore === 'number') {
+          html += '<span class="tile-overall">Overall: ' + r.overallScore + ' / ' + maxOverallScore(config) + '</span>';
         }
-        html += '<div class="tile-scores">';
+        html += '<span class="tile-scores">';
         Object.keys(r.scores).forEach(function(key) {
-          html += '<span class="tile-score-chip">' + key + ': ' + r.scores[key] + '</span>';
+          html += '<span class="tile-score-chip">' + esc(key) + ': ' + esc(r.scores[key]) + '</span>';
         });
-        html += '</div></div>';
+        html += '</span></button></div>';
       });
       container.innerHTML = html;
+
+      if (lastInputWasKeyboard) {
+        var target = null;
+        if (focus) {
+          var idx = Math.min(focus.index, resultHistory.length - 1);
+          target = container.querySelector((focus.part === 'checkbox' ? '.tile-checkbox' : '.tile-main') + '[data-index="' + idx + '"]');
+        }
+        if (!target && (!document.activeElement || document.activeElement === document.body)) {
+          target = document.querySelector('#history-screen [data-screen-focus]');
+        }
+        if (target) target.focus();
+      }
     }
 
     function handleTileClick(e, idx) {
-      if (e.defaultPrevented) return;
-      if (selectedTiles.size > 0) { toggleTileSelectByIdx(idx); return; }
+      if (longPressFired) return; // the finger lifting after a long-press — its menu is showing
+      if (selectedTiles.size > 0) { toggleTileSelectByIdx(idx, 'main'); return; }
       cameFromHistory = true;
       showResults(resultHistory[idx]);
     }
 
     function toggleTileSelect(e, idx) {
-      e.preventDefault();
       e.stopPropagation();
-      toggleTileSelectByIdx(idx);
+      toggleTileSelectByIdx(idx, 'checkbox');
     }
 
-    function toggleTileSelectByIdx(idx) {
+    function toggleTileSelectByIdx(idx, part) {
       if (selectedTiles.has(idx)) selectedTiles.delete(idx);
       else selectedTiles.add(idx);
-      renderHistoryTiles();
+      renderHistoryTiles({ index: idx, part: part || 'main' });
     }
 
-    function handleTileContext(e, idx) {
-      e.preventDefault();
+    // ===== Context menu (right-click, long-press, or the keyboard's menu key / Shift+F10) =====
+    var ctxTargetIdx = null;
+    var ctxReturnFocus = null;
+
+    function openContextMenu(idx, x, y, anchor) {
       ctxTargetIdx = idx;
+      ctxReturnFocus = anchor || null;
       var menu = document.getElementById('context-menu');
-      menu.style.left = e.clientX + 'px';
-      menu.style.top = e.clientY + 'px';
       menu.classList.add('visible');
-    }
 
-    function handleTouchStart(e, idx) {
-      var touchX = e.touches[0].clientX;
-      var touchY = e.touches[0].clientY;
-      longPressTimer = setTimeout(function() {
-        longPressTimer = null;
-        ctxTargetIdx = idx;
-        var menu = document.getElementById('context-menu');
-        menu.style.left = touchX + 'px';
-        menu.style.top = touchY + 'px';
-        menu.classList.add('visible');
-      }, 500);
-    }
-
-    function handleTouchEnd(e) {
-      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
-    }
-
-    function ctxSelect() {
-      if (ctxTargetIdx !== null && !selectedTiles.has(ctxTargetIdx)) {
-        selectedTiles.add(ctxTargetIdx);
-        renderHistoryTiles();
+      // Opened from the keyboard there is no pointer position; anchor to the tile instead.
+      if ((!x && !y) && anchor) {
+        var rect = anchor.getBoundingClientRect();
+        x = rect.left + 16;
+        y = rect.top + rect.height / 2;
       }
-      hideContextMenu();
-    }
+      // Keep the whole menu on screen: open leftward/upward near the right/bottom edge.
+      var margin = 8;
+      var w = menu.offsetWidth;
+      var h = menu.offsetHeight;
+      if (x + w > window.innerWidth - margin) x -= w;
+      if (y + h > window.innerHeight - margin) y -= h;
+      x = Math.max(margin, Math.min(x, window.innerWidth - w - margin));
+      y = Math.max(margin, Math.min(y, window.innerHeight - h - margin));
+      menu.style.left = x + 'px';
+      menu.style.top = y + 'px';
 
-    function ctxDelete() {
-      if (ctxTargetIdx !== null) {
-        resultHistory.splice(ctxTargetIdx, 1);
-        saveHistory();
-        selectedTiles.clear();
-        if (resultHistory.length === 0) { backToAssessmentHome(); hideContextMenu(); return; }
-        renderHistoryTiles();
-      }
-      hideContextMenu();
+      menu.querySelector('.context-menu-item').focus();
     }
 
     function hideContextMenu() {
@@ -1222,101 +1463,240 @@
       ctxTargetIdx = null;
     }
 
+    function closeContextMenu(returnFocus) {
+      var target = ctxReturnFocus;
+      hideContextMenu();
+      ctxReturnFocus = null;
+      if (returnFocus && target && document.body.contains(target)) target.focus();
+    }
+
+    function isContextMenuOpen() {
+      return document.getElementById('context-menu').classList.contains('visible');
+    }
+
+    function handleTileContext(e, idx) {
+      e.preventDefault();
+      openContextMenu(idx, e.clientX, e.clientY, e.currentTarget);
+    }
+
+    // Long-press opens the menu. The finger lifting afterwards would normally still produce a
+    // click, which would close the menu and open the result underneath — so after a long-press
+    // that click is cancelled (preventDefault on touchend) and, in case one arrives anyway,
+    // ignored (longPressFired).
+    var longPressTimer = null;
+    var longPressFired = false;
+
+    function handleTouchStart(e, idx) {
+      cancelLongPress();
+      longPressFired = false;
+      var touch = e.touches[0];
+      var x = touch.clientX;
+      var y = touch.clientY;
+      var anchor = e.currentTarget;
+      longPressTimer = setTimeout(function () {
+        longPressTimer = null;
+        longPressFired = true;
+        openContextMenu(idx, x, y, anchor);
+      }, 500);
+    }
+
+    function cancelLongPress() {
+      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+    }
+
+    function handleTouchEnd(e) {
+      cancelLongPress();
+      if (longPressFired) {
+        e.preventDefault();
+        setTimeout(function () { longPressFired = false; }, 400);
+      }
+    }
+
+    function ctxSelect() {
+      var idx = ctxTargetIdx;
+      hideContextMenu();
+      if (idx === null) return;
+      selectedTiles.add(idx);
+      renderHistoryTiles({ index: idx, part: 'main' });
+    }
+
+    function ctxDelete() {
+      var idx = ctxTargetIdx;
+      hideContextMenu();
+      if (idx === null || !resultHistory[idx]) return;
+      deleteResults([idx], 'Result deleted');
+    }
+
     document.addEventListener('click', function(e) {
+      if (longPressFired) return;
       if (!e.target.closest('.context-menu')) hideContextMenu();
     });
 
-    function deleteSelectedResults() {
-      var indices = Array.from(selectedTiles).sort(function(a, b) { return b - a; });
-      indices.forEach(function(i) { resultHistory.splice(i, 1); });
+    // ===== Deleting =====
+    function deleteResults(indices, message) {
+      if (indices.length === 0) return;
+      var key = currentAssessment;
+      var snapshot = resultHistory.slice();
+      var first = Math.min.apply(null, indices);
+      indices.slice().sort(function (a, b) { return b - a; }).forEach(function (i) { resultHistory.splice(i, 1); });
       saveHistory();
       selectedTiles.clear();
-      if (resultHistory.length === 0) { backToAssessmentHome(); return; }
-      renderHistoryTiles();
+      if (resultHistory.length === 0) backToAssessmentHome();
+      else renderHistoryTiles({ index: first, part: 'main' });
+      offerUndo(message, function () { restoreHistory(key, snapshot); });
+    }
+
+    function restoreHistory(key, snapshot) {
+      try {
+        localStorage.setItem(assessments[key].storageKey, JSON.stringify(snapshot));
+      } catch (e) {
+        announce("Couldn't restore: storage is unavailable.");
+        return;
+      }
+      announce(snapshot.length === 1 ? 'Result restored.' : snapshot.length + ' results restored.');
+      if (currentAssessment !== key) return;
+      resultHistory = snapshot.slice();
+      selectedTiles.clear();
+      updateHomeBtn();
+      var screen = getActiveScreen();
+      if (screen === 'history' || screen === 'assessment-home') viewPastResults();
+    }
+
+    function deleteSelectedResults() {
+      var n = selectedTiles.size;
+      deleteResults(Array.from(selectedTiles), n === 1 ? '1 result deleted' : n + ' results deleted');
     }
 
     function deleteAllResults() {
-      resultHistory = [];
-      saveHistory();
-      selectedTiles.clear();
-      backToAssessmentHome();
+      var n = resultHistory.length;
+      deleteResults(resultHistory.map(function (_, i) { return i; }), n === 1 ? '1 result deleted' : 'All ' + n + ' results deleted');
     }
 
-    // Keyboard support for quiz
+    // ===== Keyboard =====
     document.addEventListener('keydown', function(e) {
-      if (!document.getElementById('quiz-screen').classList.contains('active')) return;
-      var key = e.key;
-      var total = getConfig() ? getConfig().questions.length : 25;
-      if (key >= '1' && key <= '5') handleSelect(parseInt(key));
-      else if (key === 'ArrowLeft' && currentIdx > 0) goBack();
-      else if (key === 'ArrowRight' && answers[currentIdx] !== null && currentIdx < total - 1) goNext();
-      else if (key === 'Escape') cancelQuiz();
+      // Ctrl+Z (Cmd+Z) undoes the last delete or discard while its toast is showing.
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key === 'z' || e.key === 'Z') && pendingUndo) {
+        e.preventDefault();
+        runUndo();
+        return;
+      }
+
+      if (isContextMenuOpen()) {
+        var items = Array.from(document.querySelectorAll('#context-menu .context-menu-item'));
+        var at = items.indexOf(document.activeElement);
+        if (e.key === 'Escape') { e.preventDefault(); closeContextMenu(true); }
+        else if (e.key === 'ArrowDown') { e.preventDefault(); items[(at + 1) % items.length].focus(); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); items[(at - 1 + items.length) % items.length].focus(); }
+        else if (e.key === 'Tab') { e.preventDefault(); closeContextMenu(true); }
+        return;
+      }
+
+      if (getActiveScreen() !== 'quiz' || e.ctrlKey || e.metaKey || e.altKey) return;
+      var total = getConfig().questions.length;
+      if (/^[1-5]$/.test(e.key)) handleSelect(parseInt(e.key, 10));
+      else if (e.key === 'ArrowLeft' && currentIdx > 0) goBack();
+      else if (e.key === 'ArrowRight' && answers[currentIdx] !== null && currentIdx < total - 1) goNext();
+      else if (e.key === 'Escape') cancelQuiz();
     });
 
-    // ===== Android Back Button (History API) =====
-    // The app keeps exactly one "guard" history entry on top of a base entry.
-    // Pressing back pops the guard; we handle the navigation in-app and re-add
-    // the guard. On the home screen we leave the guard off for 2 seconds so a
-    // second back press actually leaves the app. Screen changes never push
-    // history, so the stack can't grow no matter how much the user navigates.
-    var backExitReady = false;
-    var backExitTimer = null;
+    // ===== Back button (Android system back / browser back) =====
+    // Exactly ONE extra history entry, the "guard", sits above the page's own entry. Pressing back
+    // pops it; the app handles the press itself, then steps FORWARD onto that same guard entry.
+    // Screen changes never add history entries, so the stack can't grow however long the app is
+    // used. To exit, the app simply doesn't step forward: the second press within the exit window
+    // then leaves the page, which closes an installed app.
+    //
+    // Why forward() and not pushState(): Chrome skips, on the next back press, any entry the page
+    // added with no tap or keypress since the last navigation (its defence against pages that trap
+    // the back button). A guard re-added by pushState inside the back handler got exactly that
+    // treatment, so the second back press left the app from wherever it was (seen on Android
+    // Chrome). Stepping forward reuses the existing entry and creates none. pushState is only used
+    // right after a tap or key (armBackGuard) and once at load.
+    var EXIT_WINDOW_MS = 2000;
+    var exitPending = false;
+    var exitTimer = null;
+    var guardRestoreTimer = null;
 
-    function getActiveScreen() {
-      var el = document.querySelector('.screen.active');
-      return el ? el.id.replace('-screen', '') : 'home';
-    }
+    function onGuard() { return !!(history.state && history.state.guard); }
 
     function armBackGuard() {
-      if (backExitReady) return;
-      if (!(history.state && history.state.guard)) {
-        history.pushState({ guard: true }, '');
-      }
+      if (!onGuard()) history.pushState({ guard: true }, '');
     }
 
-    history.replaceState({ base: true }, '');
-    armBackGuard();
-    // Browsers may skip entries pushed without user interaction, so re-check
-    // the guard whenever the user interacts with the page.
-    document.addEventListener('pointerdown', armBackGuard, true);
-    document.addEventListener('keydown', armBackGuard, true);
+    // Step back onto the guard after a handled back press. If, unexpectedly, there is no guard
+    // entry ahead to step onto, fall back to adding one.
+    function restoreBackGuard() {
+      clearTimeout(guardRestoreTimer);
+      history.forward();
+      guardRestoreTimer = setTimeout(function () {
+        if (!onGuard() && !exitPending) armBackGuard();
+      }, 400);
+    }
 
-    window.addEventListener('popstate', function() {
-      // Guard was just popped; we are now on the base entry. (Landing on the
-      // guard means the user pressed Forward, which needs no handling.)
-      if (history.state && history.state.guard) return;
-      var screen = getActiveScreen();
+    function cancelPendingExit() {
+      if (!exitPending) return;
+      exitPending = false;
+      clearTimeout(exitTimer);
+      document.getElementById('back-toast').classList.remove('visible');
+      armBackGuard(); // reached from a tap or key (showScreen), so the user has just interacted
+    }
 
-      var ctxMenu = document.getElementById('context-menu');
-      if (ctxMenu.classList.contains('visible')) {
-        hideContextMenu();
-      } else if (screen === 'home') {
-        // Show the toast and leave the guard off: the next back press exits.
-        backExitReady = true;
-        var toast = document.getElementById('back-toast');
-        toast.classList.add('visible');
-        clearTimeout(backExitTimer);
-        backExitTimer = setTimeout(function() {
-          backExitReady = false;
-          toast.classList.remove('visible');
-          armBackGuard();
-        }, 2000);
-        return;
-      } else if (screen === 'assessment-home') {
-        showScreen('home');
-      } else if (screen === 'quiz') {
-        cancelQuiz();
-      } else if (screen === 'results') {
-        resultsGoBack();
-      } else if (screen === 'history') {
-        backToAssessmentHome();
+    function startExitWindow() {
+      exitPending = true;
+      document.getElementById('back-toast').classList.add('visible');
+      announce('Press back again to exit.');
+      exitTimer = setTimeout(function () {
+        exitPending = false;
+        document.getElementById('back-toast').classList.remove('visible');
+        restoreBackGuard();
+      }, EXIT_WINDOW_MS);
+    }
+
+    function handleBackPress() {
+      if (isContextMenuOpen()) {
+        closeContextMenu(true);
+      } else {
+        var screen = getActiveScreen();
+        if (screen === 'home') { startExitWindow(); return; } // no guard now: next press exits
+        if (screen === 'assessment-home') showScreen('home');
+        else if (screen === 'quiz') cancelQuiz();
+        else if (screen === 'results') resultsGoBack();
+        else if (screen === 'history') backToAssessmentHome();
       }
-      armBackGuard();
+      restoreBackGuard();
+    }
+
+    (function initBackGuard() {
+      if (onGuard()) return; // reloaded while on the guard: already in place
+      var state = history.state;
+      if (!(state && state.base)) history.replaceState({ base: true }, '');
+      history.pushState({ guard: true }, '');
+    })();
+
+    window.addEventListener('popstate', function(e) {
+      var state = e.state || {};
+      if (state.guard) {
+        // Arrived ON the guard: our own restoreBackGuard() step, or the forward button during
+        // the exit window. Nothing to handle.
+        clearTimeout(guardRestoreTimer);
+        cancelPendingExit();
+        return;
+      }
+      if (exitPending) {
+        // Second press, but still on an entry of this page (e.g. one left behind by an older
+        // version of the app): keep going back until the page is left.
+        history.back();
+        return;
+      }
+      handleBackPress();
     });
 
-    // Register service worker for PWA
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js');
+    // Offline support for the web app. Service workers need http(s); the desktop app loads from
+    // a local file, where there is nothing to register.
+    if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+      navigator.serviceWorker.register('./sw.js').catch(function (err) {
+        console.warn('Offline support unavailable:', err);
+      });
     }
   </script>
 </body>
