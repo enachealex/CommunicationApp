@@ -395,6 +395,44 @@
     .score-label { color: #f8fafc; font-size: 16px; font-weight: 500; }
     .score-value { color: #94a3b8; font-size: 16px; font-weight: bold; }
 
+    /* Growth plan: green for the strength you have, amber for the stretch to practice. */
+    .growth { width: 100%; max-width: 500px; margin-bottom: 20px; }
+    .growth-heading { color: #f8fafc; font-size: 20px; font-weight: bold; margin-bottom: 4px; }
+    .growth-intro { color: #94a3b8; font-size: 14px; line-height: 20px; margin-bottom: 12px; }
+    .growth-card {
+      background-color: #1e293b;
+      padding: 18px 20px;
+      border-radius: 15px;
+      margin-bottom: 12px;
+      border: 1px solid #334155;
+    }
+    .growth-strength { border-color: #34d399; }
+    .growth-stretch { border-color: #fbbf24; }
+    .growth-label {
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .growth-strength .growth-label { color: #34d399; }
+    .growth-stretch .growth-label { color: #fbbf24; }
+    .growth-title { color: #f8fafc; font-size: 19px; font-weight: bold; margin-bottom: 8px; }
+    .growth-text { color: #cbd5e1; font-size: 15px; line-height: 22px; margin-bottom: 8px; }
+    .growth-text strong { color: #f8fafc; }
+    .growth-note { color: #fde68a; font-size: 14px; line-height: 20px; margin-bottom: 8px; }
+    .growth-sub { color: #f8fafc; font-size: 15px; font-weight: bold; margin: 12px 0 8px; }
+    .practice-list { list-style: none; }
+    .practice-item {
+      background-color: #0f172a;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+    }
+    .practice-item:last-child { margin-bottom: 0; }
+    .practice-text { display: block; color: #e2e8f0; font-size: 15px; line-height: 22px; }
+    .practice-source { display: block; color: #94a3b8; font-size: 12px; margin-top: 4px; }
+
     /* History Screen */
     .history-screen {
       padding: 20px;
@@ -907,7 +945,7 @@
         overallBands: [
           { min: 85, max: 100, label: 'High EI', desc: 'Strong emotional insight. You are likely highly resilient, socially adept, and skilled at reading both your own emotions and those of the people around you.' },
           { min: 60, max: 84, label: 'Moderate EI', desc: 'Generally emotionally aware, but you may struggle during high-stress situations or have occasional blind spots in reading social cues.' },
-          { min: 0, max: 59, label: 'Developing EI', desc: 'Significant opportunity for growth in recognizing and managing emotions. Focused practice in self-reflection and active listening can yield substantial improvement.' }
+          { min: 0, max: 59, label: 'Developing EI', desc: 'These skills are still developing, and they respond well to practice. Your growth plan below shows where to start.' }
         ],
         questions: [
           "I can easily name the specific emotion I am feeling at any given moment.",
@@ -931,6 +969,217 @@
           "I can adapt my communication style depending on the emotional state of the listener.",
           "I feel uncomfortable or awkward when others share their deep feelings with me."
         ]
+      }
+    };
+
+    // ===== Growth Plans =====
+    // One entry per style (or EI area): what it does well, where it backfires, when it is the right
+    // tool, and practices for building it. The results screen shows the strength of your top style
+    // and the practices for your least-used one. `useWhen` reads on from "…when".
+    // Practices cite studies from the "Power of Communication" research compendium.
+    const growthPlans = {
+      conflict: {
+        Avoiding: {
+          strength: "You don't spend energy on small issues, and you give heated moments time to cool before anyone says something they regret.",
+          watchOut: "Important issues can stay unspoken until they grow, and others may read your silence as agreement or as not caring.",
+          useWhen: "the issue is minor, emotions are too hot for a productive talk, or you need time to gather the facts first.",
+          practices: [
+            { text: "Before you engage, ask yourself, \"Will this matter in a week?\" If not, let it go on purpose.", source: "Rahim, 1983" },
+            { text: "When a conversation overheats, call a short break: \"I want to get this right. Can we pick it up in an hour?\" Then come back as promised.", source: "Ury, 1993" }
+          ]
+        },
+        Dominating: {
+          strength: "You can make a call, hold a boundary and act quickly when it counts.",
+          watchOut: "People may stop raising concerns around you, so you lose information and goodwill.",
+          useWhen: "a fast decision is needed, a safety or ethical line is at stake, or you need to stand up for yourself or someone else.",
+          practices: [
+            { text: "Make the first clear, specific ask instead of waiting to react. Opening offers anchor where a conversation ends up.", source: "Galinsky & Mussweiler, 2001" },
+            { text: "Before a tough conversation, decide what you'll do if you can't agree. Knowing your fallback lets you hold firm without raising the heat.", source: "Fisher, Ury & Patton, 1991" }
+          ]
+        },
+        Compromising: {
+          strength: "You find workable middle ground quickly and keep things moving.",
+          watchOut: "Splitting the difference can leave better options on the table and leave both sides only half satisfied.",
+          useWhen: "time is short, both sides have similar power, or a temporary fix is good enough for now.",
+          practices: [
+            { text: "Before you start, rank what matters most to you, so you trade away the things you care about least.", source: "Thompson & Hastie, 1990" },
+            { text: "Offer trades rather than concessions: \"I can be flexible on this if we can do that.\"", source: "Pruitt, 1983" }
+          ]
+        },
+        Obliging: {
+          strength: "You protect relationships and show generosity, and people trust your goodwill.",
+          watchOut: "Your own needs can go unmet, and resentment can build quietly.",
+          useWhen: "the issue matters far more to the other person, you realize you're wrong, or keeping the relationship strong is the top priority.",
+          practices: [
+            { text: "When you're wrong, say so quickly and specifically. An apology that takes clear responsibility repairs trust.", source: "Lewicki, Saunders & Barry, 2015" },
+            { text: "Let small points go when the relationship matters more. How people feel about the process shapes whether they cooperate next time.", source: "Curhan, Elfenbein & Xu, 2006" }
+          ]
+        },
+        Integrating: {
+          strength: "You look for solutions that fully work for everyone and dig into the real cause of a problem.",
+          watchOut: "It takes time and energy, and not every issue needs a full problem-solving session.",
+          useWhen: "both sides' concerns are too important to compromise on, you need real commitment, or the relationship is long-term.",
+          practices: [
+            { text: "Ask \"Why does that matter to you?\" to uncover the interests behind each side's position.", source: "Fisher, Ury & Patton, 1991" },
+            { text: "Share your own priorities early. Exchanging information is what reveals solutions that help both sides.", source: "Thompson & Hastie, 1990" },
+            { text: "Use problem-solving language, like \"How might we…?\" It tends to invite the same in return.", source: "Putnam & Jones, 1982" }
+          ]
+        }
+      },
+      listening: {
+        'People-Oriented': {
+          strength: "People feel heard and cared for around you, which builds trust quickly.",
+          watchOut: "You may absorb other people's stress, or lose track of the facts and next steps.",
+          useWhen: "someone is upset, sharing something personal, or needs support more than solutions.",
+          practices: [
+            { text: "Before you respond, sum up what you heard, including the feeling: \"So you're frustrated because…\"", source: "Rogers, 1957; Miller & Rollnick, 2012" },
+            { text: "Name the emotion you notice. Putting feelings into words helps calm them.", source: "Lieberman et al., 2007" },
+            { text: "When someone shares good news, ask a follow-up question instead of moving on.", source: "Gable et al., 2006" }
+          ]
+        },
+        'Action-Oriented': {
+          strength: "You turn talk into clear next steps and keep conversations useful.",
+          watchOut: "You may jump to solutions before the speaker feels heard, or miss emotional cues.",
+          useWhen: "a group needs decisions, owners and deadlines.",
+          practices: [
+            { text: "End important conversations with a quick recap: what was decided, who does what, and by when.", source: "DeChurch & Mesmer-Magnus, 2010" },
+            { text: "Before offering solutions, ask \"What would help most right now?\" so the other person stays in charge of their own problem.", source: "Miller & Rollnick, 2012" }
+          ]
+        },
+        'Content-Oriented': {
+          strength: "You weigh evidence, spot gaps and stay with complex ideas.",
+          watchOut: "Probing questions can feel like an interrogation, so people may feel judged.",
+          useWhen: "a decision depends on accuracy, the topic is complex, or claims need testing.",
+          practices: [
+            { text: "Ask open questions with no set answer, like \"How did you get to that?\"", source: "Nystrand & Gamoran, 1991" },
+            { text: "Build on an idea before you challenge it. Critical but constructive talk sharpens everyone's thinking.", source: "Mercer, 2000" }
+          ]
+        },
+        'Time-Oriented': {
+          strength: "You respect everyone's time and keep conversations focused.",
+          watchOut: "Impatience can make people feel rushed or cut off.",
+          useWhen: "time is genuinely limited, meetings drift, or a conversation needs structure.",
+          practices: [
+            { text: "Set expectations at the start: \"I have 15 minutes. Let's cover the main points.\" Telling people what to expect is a habit of doctors who are rarely sued.", source: "Levinson et al., 1997" },
+            { text: "Move long or ambiguous topics to a scheduled conversation instead of a rushed hallway chat or message.", source: "Daft & Lengel, 1986" }
+          ]
+        }
+      },
+      feedback: {
+        Direct: {
+          strength: "People always know where they stand with you, and problems get fixed fast.",
+          watchOut: "Bluntness without warmth can make people defensive, so the message gets lost.",
+          useWhen: "an issue is urgent, safety is at stake, or someone has asked for straight talk.",
+          practices: [
+            { text: "Name the specific behavior and its effect: \"In the meeting you interrupted twice, and the team stopped sharing ideas.\"", source: "Hattie & Timperley, 2007" },
+            { text: "Keep feedback about the task and the next step, never about who the person is.", source: "Hattie & Timperley, 2007; Dweck, 2007" }
+          ]
+        },
+        Supportive: {
+          strength: "You build confidence and trust, so people feel safe hearing feedback from you.",
+          watchOut: "Important concerns can get softened so much that they're missed.",
+          useWhen: "someone is new, discouraged or learning something hard.",
+          practices: [
+            { text: "Praise effort and strategy rather than talent: \"Your new approach really paid off.\"", source: "Dweck, 2007" },
+            { text: "Acknowledge how someone feels before you suggest a change.", source: "Linehan, 1993" }
+          ]
+        },
+        Analytical: {
+          strength: "Your feedback is fair, specific and hard to argue with.",
+          watchOut: "It can feel clinical, and people may miss that you care.",
+          useWhen: "work needs to meet a clear standard, the stakes are high, or the feedback may be disputed.",
+          practices: [
+            { text: "Structure feedback around three questions: Where are we going? How is it going? What's next?", source: "Hattie & Timperley, 2007" },
+            { text: "Back each point with one concrete example. Strong, specific evidence is what changes minds for good.", source: "Petty & Cacioppo, 1986" }
+          ]
+        },
+        Reflective: {
+          strength: "You help people find their own answers, which builds ownership and learning.",
+          watchOut: "Some people want a clear answer and may find a stream of questions frustrating.",
+          useWhen: "the person is capable, the goal is growth, or they need to own the solution.",
+          practices: [
+            { text: "Ask before you tell: \"What went well? What would you change next time?\"", source: "Miller & Rollnick, 2012" },
+            { text: "Invite people to explain their thinking out loud. Explaining in their own words is how learning sticks.", source: "Chi et al., 2001" }
+          ]
+        }
+      },
+      communication: {
+        Driver: {
+          strength: "You bring clarity, decisiveness and momentum.",
+          watchOut: "Others may feel steamrolled or stop sharing their concerns.",
+          useWhen: "a group is stuck, time is short, or someone has to make the call.",
+          practices: [
+            { text: "Lead with your bottom line in one sentence, then give your reasons. Brief, clear messages are the ones people act on.", source: "Glik, 2007" },
+            { text: "Close discussions by naming the decision, the owner and the deadline.", source: "DeChurch & Mesmer-Magnus, 2010" }
+          ]
+        },
+        Expressive: {
+          strength: "You energize people and make ideas memorable.",
+          watchOut: "Details and follow-through can slip, and quieter voices may get drowned out.",
+          useWhen: "you need to inspire people, launch something new or rally a group.",
+          practices: [
+            { text: "Make your point with a short story or vivid example, not just facts.", source: "Conger, 1998" },
+            { text: "When a colleague shares a win, respond with real enthusiasm and a question.", source: "Gable et al., 2006" }
+          ]
+        },
+        Amiable: {
+          strength: "You build trust, include everyone and keep teams together.",
+          watchOut: "You may avoid necessary disagreement or keep your own view to yourself.",
+          useWhen: "a team is under strain, people feel left out, or buy-in matters.",
+          practices: [
+            { text: "Draw in quiet voices: \"We haven't heard from you yet. What do you think?\"", source: "Pentland, 2012" },
+            { text: "Thank people for raising problems, so they keep doing it.", source: "Edmondson, 1999" },
+            { text: "Check in on someone and really listen to the answer. Feeling understood is the core of closeness.", source: "Reis & Shaver, 1988" }
+          ]
+        },
+        Analytical: {
+          strength: "You are precise, well prepared and careful with facts.",
+          watchOut: "You may come across as reserved or slow to decide.",
+          useWhen: "accuracy matters, a decision is complex, or a plan needs stress-testing.",
+          practices: [
+            { text: "Back your key point with one strong piece of evidence. Strong arguments are the ones that change minds for good.", source: "Petty & Cacioppo, 1986" },
+            { text: "Put complex details in writing after a conversation, and save live talk for questions and decisions.", source: "Daft & Lengel, 1986" }
+          ]
+        }
+      },
+      ei: {
+        'Self-Awareness': {
+          strength: "You know what you feel and what sets you off, so you can choose how to respond.",
+          watchOut: "Feelings can catch you by surprise or leak into conversations without you noticing.",
+          useWhen: "you're heading into a hard conversation, feeling stressed, or making a big decision.",
+          practices: [
+            { text: "Name the feeling as precisely as you can (\"frustrated\" rather than \"bad\"). Labeling emotions calms the brain's alarm system.", source: "Lieberman et al., 2007" },
+            { text: "Spend 15 minutes writing about something that's weighing on you.", source: "Pennebaker, 1997" }
+          ]
+        },
+        'Self-Management': {
+          strength: "You stay steady under pressure and think before you react.",
+          watchOut: "Strong emotions can decide what you say before you do.",
+          useWhen: "conflict heats up, plans fall apart, or you're tired and stressed.",
+          practices: [
+            { text: "\"Go to the balcony\": pause, breathe and step back before you respond.", source: "Ury, 1993" },
+            { text: "When you notice a strong reaction, name it to yourself (\"I'm feeling defensive\"). Naming it takes some of the heat out.", source: "Lieberman et al., 2007" }
+          ]
+        },
+        'Social Awareness': {
+          strength: "You read the room and pick up on what people feel but don't say.",
+          watchOut: "You may miss subtle cues or misread how someone is feeling.",
+          useWhen: "someone goes quiet, tension is unspoken, or backgrounds and cultures differ.",
+          practices: [
+            { text: "Watch for the three signs of rapport (attention, warmth and being in sync) and notice when they drop.", source: "Tickle-Degnen & Rosenthal, 1990" },
+            { text: "With people from other backgrounds, slow down and treat your first read as a guess to check.", source: "Gudykunst, 1995" }
+          ]
+        },
+        'Relationship Management': {
+          strength: "You handle conflict well, motivate others and give feedback that lands.",
+          watchOut: "Hard conversations may turn defensive, or your encouragement may not reach people.",
+          useWhen: "you're giving feedback, resolving a conflict or supporting someone who's discouraged.",
+          practices: [
+            { text: "Swap criticism for a specific request: \"Could you…\" instead of \"You always…\"", source: "Gottman & Levenson, 1992" },
+            { text: "Respond to other people's good news with real interest and a question.", source: "Gable et al., 2006" },
+            { text: "Keep positive moments well ahead of negative ones. Stable couples run about five to one, even in conflict.", source: "Gottman & Levenson, 1999" }
+          ]
+        }
       }
     };
 
@@ -1242,6 +1491,77 @@
       return esc(config.descriptions[style] || '');
     }
 
+    // "Your Growth Plan": the strength (and, for styles, the watch-out) of the top style, then the
+    // lowest-scoring style or EI area with practices for building it. No style is better than
+    // another, so for the style assessments the stretch is the one used least — being able to reach
+    // for it is the growth. Ties: three or more top styles share one card, at most two stretch
+    // cards are shown, and a result where everything ties gets only the "scored evenly" advice.
+    function growthPlanHtml(assessmentKey, config, scores, primaries) {
+      var plans = growthPlans[assessmentKey];
+      if (!plans) return '';
+      var isEI = config.customScoring === 'ei';
+      var values = config.styles.map(function (s) { return scores[s]; }).filter(function (v) { return typeof v === 'number'; });
+      if (!values.length) return '';
+      var top = Math.max.apply(null, values);
+      var low = Math.min.apply(null, values);
+      var stretch = config.styles.filter(function (s) { return scores[s] === low && primaries.indexOf(s) === -1; }).slice(0, 2);
+
+      var html = '<section class="growth" aria-labelledby="growth-heading">';
+      html += '<h2 class="growth-heading" id="growth-heading">Your Growth Plan</h2>';
+      html += '<p class="growth-intro">A reflection tool, not a diagnosis. Pick one practice and try it this week.</p>';
+
+      if (stretch.length && primaries.length > 2) {
+        html += '<div class="growth-card growth-strength">';
+        html += '<div class="growth-label">' + (isEI ? 'Strongest areas' : 'Your strengths') + '</div>';
+        html += '<div class="growth-title">' + esc(primaries.join(', ')) + '</div>';
+        html += '<p class="growth-text">' + (isEI
+          ? 'These areas scored equally, a solid base to build on.'
+          : 'You use these about equally, so you likely switch between them as situations change.') + '</p>';
+        html += '</div>';
+      } else if (stretch.length) {
+        primaries.forEach(function (p) {
+          var plan = plans[p];
+          if (!plan) return;
+          html += '<div class="growth-card growth-strength">';
+          html += '<div class="growth-label">' + (isEI ? 'Strongest area' : 'Your strength') + '</div>';
+          html += '<div class="growth-title">' + esc(p) + '</div>';
+          html += '<p class="growth-text">' + esc(plan.strength) + '</p>';
+          if (!isEI) html += '<p class="growth-text"><strong>Watch out:</strong> ' + esc(plan.watchOut) + '</p>';
+          html += '</div>';
+        });
+      }
+
+      if (!stretch.length) {
+        html += '<div class="growth-card growth-stretch">';
+        html += '<div class="growth-label">' + (isEI ? 'Focus area' : 'Stretch area') + '</div>';
+        html += '<p class="growth-text">' + (isEI
+          ? 'Your areas scored evenly. Choose the one that matters most for what you face this week and practice it on purpose.'
+          : 'You scored evenly across every style, so you already adapt. Before your next hard conversation, decide which approach the moment needs.') + '</p>';
+        html += '</div>';
+      }
+
+      stretch.forEach(function (s) {
+        var plan = plans[s];
+        if (!plan) return;
+        html += '<div class="growth-card growth-stretch">';
+        html += '<div class="growth-label">' + (isEI ? 'Focus area' : 'Stretch area') + '</div>';
+        html += '<div class="growth-title">' + esc(s) + '</div>';
+        if (top - low <= 3) html += '<p class="growth-note">Your scores are close together, so this is a gentle stretch rather than a gap.</p>';
+        if (isEI) html += '<p class="growth-text"><strong>Signs it needs attention:</strong> ' + esc(plan.watchOut) + '</p>';
+        html += '<p class="growth-text"><strong>' + (isEI ? 'It matters most when' : 'Reach for it when') + '</strong> ' + esc(plan.useWhen) + '</p>';
+        html += '<div class="growth-sub">Try this week</div>';
+        html += '<ul class="practice-list">';
+        plan.practices.forEach(function (pr) {
+          html += '<li class="practice-item"><span class="practice-text">' + esc(pr.text) + '</span>';
+          html += '<span class="practice-source">Research: ' + esc(pr.source) + '</span></li>';
+        });
+        html += '</ul></div>';
+      });
+
+      html += '</section>';
+      return html;
+    }
+
     function showResults(result) {
       var assessmentKey = result.assessment || currentAssessment;
       viewingAssessmentKey = assessmentKey;
@@ -1290,27 +1610,13 @@
         html += '</div>';
       }
 
-      // EI: show weakest area if significantly lower
-      if (config.customScoring === 'ei') {
-        var minScore = Math.min.apply(null, Object.values(scores));
-        var maxScore = Math.max.apply(null, Object.values(scores));
-        if (maxScore - minScore >= 4) {
-          var weakest = Object.keys(scores).filter(function(k) { return scores[k] === minScore; });
-          html += '<div class="secondary-card" style="border-color:#f87171;">';
-          html += '<div class="secondary-title" style="color:#f87171;">Area for Growth: ' + esc(weakest.join(', ')) + '</div>';
-          weakest.forEach(function(w) {
-            html += '<div class="bullet-item-secondary">&bull; ' + describe(config, w) + '</div>';
-          });
-          html += '</div>';
-        }
-      }
-
       html += '<div class="score-board">';
       Object.keys(scores).forEach(function(key) {
         var max = maxByStyle[key] !== undefined ? maxByStyle[key] : fallbackMax;
         html += '<div class="score-row"><span class="score-label">' + esc(key) + '</span><span class="score-value">' + esc(scores[key]) + ' / ' + max + '</span></div>';
       });
       html += '</div>';
+      html += growthPlanHtml(assessmentKey, config, scores, primaries);
       html += '<div style="color:#64748b; font-size:12px; text-align:center; margin-bottom:20px; padding:0 20px; line-height:18px;">' + config.reference + '</div>';
 
       document.getElementById('results-content').innerHTML = html;

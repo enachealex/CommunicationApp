@@ -4,6 +4,11 @@ Five short self-assessments: Conflict Style, Listening Style, Feedback Style, Co
 Style and Emotional Intelligence. Answer 20–25 statements on a 1–5 scale and get your primary
 and secondary styles, scores, and a link to read more.
 
+Every result ends with a growth plan: what your top style does well and where it can backfire,
+then your least-used style (for Emotional Intelligence, your lowest area) with when to use it
+and two or three practices to try this week. Each practice cites the study it comes from. The
+content lives in `growthPlans` in `index.html`, next to the `assessments` config.
+
 The whole app is one file, `index.html`, and it runs in two places:
 
 - **Web / installable app (PWA):** <https://enachealex.github.io/CommunicationApp/>, served by
